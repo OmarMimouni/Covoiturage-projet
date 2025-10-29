@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Itinéraire avec autocomplétion</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <style>
+        body { margin:0; font-family:Arial; }
+        #map { height: 600px; width: 100%; }
+        .controls {
+            padding: 10px;
+            background: #fff;
+            z-index: 1000;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        input { padding: 6px; margin: 4px 0; width: 220px; }
+        button { padding: 6px 12px; cursor:pointer; margin-top:4px; }
+    </style>
+</head>
+<body>
+
+<div class="controls">
+    <label>Lieu de départ:</label><br>
+    <input type="text" id="start" list="start-list" placeholder="Ex: Paris"><br>
+    <datalist id="start-list"></datalist>
+
+    <label>Lieu d'arrivée:</label><br>
+    <input type="text" id="end" list="end-list" placeholder="Ex: Versailles"><br>
+    <datalist id="end-list"></datalist>
+
+    <button id="routeBtn">Afficher l'itinéraire</button>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+<script src="https://unpkg.com/lrm-openrouteservice/dist/leaflet-routing-machine.openrouteservice.js"></script>
+
+<script>
+    const map = L.map('map').setView([48.8566, 2.3522], 12); // Paris par défaut
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+    let routingControl = null;
+
+    // Autocomplétion avec Photon
+    async function fetchSuggestions(inputId, listId) {
+        const input = document.getElementById(inputId);
+        const datalist = document.getElementById(listId);
+
+        input.addEventListener('input', async () => {
+            const value = input.value;
+            if (value.length < 3) return;
+
+            const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(value)}&limit=5`);
+            const data = await res.json();
+
+            datalist.innerHTML = '';
+            data.features.forEach(feature => {
+                const option = document.createElement('option');
+                let displayName = feature.properties.name || '';
+                if(feature.properties.city) displayName += ', ' + feature.properties.city;
+                if(feature.properties.country) displayName += ', ' + feature.properties.country;
+                option.value = displayName;
+                datalist.appendChild(option);
+            });
+        });
+    }
+
+    fetchSuggestions('start', 'start-list');
+    fetchSuggestions('end', 'end-list');
+
+    // Géocodage
+    async function geocode(address) {
+        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(address)}&limit=1`);
+        const data = await res.json();
+        if(data.features && data.features.length > 0) {
+            return [data.features[0].geometry.coordinates[1], data.features[0].geometry.coordinates[0]];
+        } else {
+            alert("Adresse non trouvée : " + address);
+            return null;
+        }
+    }
+
+    // Calcul de l'itinéraire
+    document.getElementById('routeBtn').addEventListener('click', async () => {
+        const startAddr = document.getElementById('start').value;
+        const endAddr = document.getElementById('end').value;
+
+        const startCoords = await geocode(startAddr);
+        const endCoords = await geocode(endAddr);
+        if(!startCoords || !endCoords) return;
+
+        if(routingControl) map.removeControl(routingControl);
+
+        routingControl = L.Routing.control({
+            waypoints: [
+                L.latLng(startCoords[0], startCoords[1]),
+                L.latLng(endCoords[0], endCoords[1])
+            ],
+            router: new L.Routing.OpenRouteService('eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjY2ZGY2ZTQyY2JkMTQ3OGJhZWEzMDIyNjIwNGZhNDk1IiwiaCI6Im11cm11cjY0In0=='), // <--- Mets ta clé ORS ici
+            lineOptions: { styles: [{ color: 'blue', opacity: 0.7, weight: 5 }] },
+            routeWhileDragging: true,
+            showAlternatives: true,
+        }).addTo(map);
+
+        map.fitBounds([startCoords, endCoords]);
+    });
+</script>
+
+</body>
+</html>

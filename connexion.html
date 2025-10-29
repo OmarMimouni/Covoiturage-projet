@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>connexion</title>
+</head>
+<style>
+    :root {
+        --bg1: #f3f4f6;
+        --bg2: #eef2ff;
+        --card: #ffffff;
+        --accent: #4f46e5;
+        --muted: #6b7280;
+    }
+
+    * {
+        box-sizing: border-box
+    }
+
+    html,
+    body {
+        height: 100%
+    }
+
+    body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        background: linear-gradient(135deg, var(--bg2) 0%, #fff7ed 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0f172a;
+        -webkit-font-smoothing: antialiased;
+        padding: 24px;
+    }
+
+
+    fieldset {
+        width: 380px;
+        max-width: 96%;
+        background: var(--card);
+        border: 0;
+        border-radius: 14px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+        transition: transform .12s ease, box-shadow .12s ease;
+    }
+
+    fieldset:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 40px rgba(2, 6, 23, 0.10);
+    }
+
+    legend {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    .name {
+        width: 100%;
+        padding: 12px 14px;
+        margin-top: 6px;
+        border: 1px solid #e6e9ef;
+        border-radius: 10px;
+        background: #fbfdff;
+        font-size: 15px;
+        outline: none;
+        transition: box-shadow .12s ease, border-color .12s ease, transform .12s;
+        display: block;
+    }
+
+    input:focus,
+    .name:focus {
+        border-color: var(--accent);
+        box-shadow: 0 6px 18px rgba(79, 70, 229, 0.12);
+        transform: translateY(-1px);
+    }
+
+
+    label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 12px;
+    }
+
+    small {
+        display: block;
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 8px;
+    }
+
+
+    button {
+        width: 100%;
+        margin-top: 18px;
+        padding: 12px;
+        background: linear-gradient(90deg, var(--accent), #7c3aed);
+        color: #fff;
+        border: 0;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 8px 30px rgba(79, 70, 229, 0.14);
+        transition: transform .12s ease, box-shadow .12s ease, opacity .12s;
+    }
+
+    button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 40px rgba(79, 70, 229, 0.16);
+    }
+
+    button:active {
+        transform: translateY(-1px);
+    }
+
+
+    a {
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 14px;
+        display: inline-block;
+        margin-top: 12px;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+
+    @media (max-width:420px) {
+        fieldset {
+            padding: 18px;
+            border-radius: 12px;
+        }
+
+        legend {
+            font-size: 18px;
+        }
+
+        button {
+            padding: 11px;
+        }
+    }
+</style>
+
+<body>
+
+    <form action="" id="formulaire">
+        <fieldset>
+            <legend>connexion :</legend><br>
+            Email :<br><input type="email" id="email" placeholder="saisire ton email" class="name"><br><br>
+            Mot de passe :<br><input type="password" placeholder="saisire le mot de passe" id="passe"
+                class="name"><br><br>
+            <button type="submit"> se connecter </button><br><br>
+            <a href=''>je suis pas inscrit !</a>
+        </fieldset>
+    </form>
+
+    <script type="module">
+
+        
+        import { createClient } from "https://esm.sh/@supabase/supabase-js"
+
+        const SUPABASE_URL = "https://krxosvsxazhdahyaecin.supabase.co"
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtyeG9zdnN4YXpoZGFoeWFlY2luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1ODUzNzYsImV4cCI6MjA3NzE2MTM3Nn0.jEk8UPTRAje8BNw2oapXeobG4HNglEZ5x6zzccOiG08"
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+        document.getElementById("formulaire").addEventListener("submit", async (e) => {
+            e.preventDefault()
+            let email = document.getElementById("email").value;
+            let mdp = document.getElementById('passe').value;
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                "email": email,
+                "password": mdp,
+            });
+            if (error) {
+                alert(error.message)
+            }
+            else {
+                window.location.href = "passagerHome.html"; 
+            }
+
+        });
+
+
+    </script>
+</body>
+
+</html>

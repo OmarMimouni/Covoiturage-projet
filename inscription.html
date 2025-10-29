@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription utilisateur</title>
+</head>
+
+<body style="font-family: Arial; padding: 30px;">
+
+    <h1>Inscription</h1>
+
+    <form id="formInscription">
+        <label>Nom :</label><br>
+        <input type="text" id="nom" required><br><br>
+
+        <label>Prénom :</label><br>
+        <input type="text" id="prenom" required><br><br>
+
+        <label>Email :</label><br>
+        <input type="email" id="email" required><br><br>
+
+        <label>Mot de passe :</label><br>
+        <input type="password" id="motdepasse" required><br><br>
+
+        <label>comfirmer le mot de passe :</label><br>
+        <input type="password" id="rmotdepasse" required><br><br>
+
+
+        <button type="submit">S’inscrire</button>
+    </form>
+
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js"
+        const SUPABASE_URL = "https://krxosvsxazhdahyaecin.supabase.co"
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtyeG9zdnN4YXpoZGFoeWFlY2luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1ODUzNzYsImV4cCI6MjA3NzE2MTM3Nn0.jEk8UPTRAje8BNw2oapXeobG4HNglEZ5x6zzccOiG08"
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+
+        document.getElementById("formInscription").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+
+
+
+            const nom = document.getElementById("nom").value
+            const prenom = document.getElementById("prenom").value
+            const email = document.getElementById("email").value
+            const motdepasse = document.getElementById("motdepasse").value
+            const rmotdepasse = document.getElementById("rmotdepasse").value
+
+
+
+            const { data, error } = await supabase
+                .from("utilisateurs")
+                .select("*")
+                .eq("email", email);
+
+            if (error) {
+                alert("erreur", error.message)
+            } else if (data.length > 0) {
+                alert("email existe déjà !!!");
+                return;
+            }
+            else {
+                console.log("✅ Email disponible");
+                if (motdepasse === rmotdepasse) {
+                    const { data, error } = await supabase.auth.signUp({
+                        email: email,
+                        password: motdepasse,
+                        options: { emailRedirectTo: "http://127.0.0.1:5500/connexion.html" }
+                    });
+
+                    if (error) {
+                        alert("❌ " + error.message);
+                    } else {
+                        alert("✅ Inscription réussite ! Vérifie ton email pour confirmer ton compte.");
+                        
+                        const { data, error } = await supabase
+                            .from("utilisateurs")
+                            .insert([
+                                {
+                                    "email": email,
+                                    "nom": nom,
+                                    "prenom": prenom,
+                                    "online": true
+                                }
+                            ]);
+                        document.write("inscription effectué !")
+                        if (error) {
+                            console.error("Erreur :", error.message);
+                        } else {
+                            console.log("Données insérées :", data);
+                        }
+                    }
+
+                } else {
+                    alert("❌ Les mots de passe ne se conforment pas !");
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+        })
+
+    </script>
+
+</body>
+
+</html>
