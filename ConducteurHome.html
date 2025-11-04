@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <title>conducteur - CMC-RIDES</title>
+</head>
+<style>
+    :root {
+        --primary: #2c3e50;
+        --accent: #3498db;
+        --accent-dark: #2980b9;
+        --text-dark: #333;
+        --white: #fff;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--text-dark);
+        overflow-x: hidden;
+    }
+
+    nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1.2rem 5%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1000;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+
+    .logo {
+        display: flex;
+        align-items: center;
+    }
+
+    .logo img {
+        height: 60px;
+        width: auto;
+        transform: scale(2.3, 2.3);
+        transition: transform 0.3s ease;
+    }
+
+
+    .nav-links {
+        display: flex;
+        gap: 2.5rem;
+        list-style: none;
+        margin-top: 10px;
+    }
+
+    .nav-links a {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        position: relative;
+        transition: color 0.3s ease;
+        padding: 0.5rem 0;
+
+    }
+
+    .nav-links a::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--accent);
+        transition: width 0.3s ease;
+
+    }
+
+    .nav-links a:hover {
+        color: var(--accent-dark);
+    }
+
+    .nav-links a:hover::after {
+        width: 100%;
+    }
+
+    .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background:
+            /* Dégradé par-dessus l'image */
+            linear-gradient(rgba(141, 140, 140, 0.5), rgba(60, 60, 60, 0.5)),
+            /* Image de fond */
+            url('BG-CONDUCTEUR.png'),
+            /* Couleur de secours si l'image ne se charge pas */
+            linear-gradient(135deg, #2c3e50, #3498db);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+        overflow: hidden;
+        padding: 0 5%;
+    }
+
+    .hero-content {
+        text-align: center;
+        z-index: 2;
+        max-width: 900px;
+        position: relative;
+    }
+
+    .hero h1 {
+        font-size: clamp(3rem, 8vw, 6rem);
+        font-weight: 900;
+        color: var(--white);
+        margin-bottom: 1.5rem;
+        letter-spacing: -2px;
+        animation: fadeInUp 0.8s ease;
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero p {
+        font-size: clamp(1.1rem, 2vw, 1.4rem);
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 3rem;
+        line-height: 1.8;
+        animation: fadeInUp 0.8s ease 0.2s both;
+    }
+
+    .btn-primary {
+        background-color: var(--accent);
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: white;
+        display: inline-block;
+        animation: fadeInUp 0.8s ease 0.4s both;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--accent-dark);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .title-res {
+        text-align: center;
+        margin: 50px;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Section de contenu */
+    .content-section {
+        padding: 5rem 5%;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 3rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .nav-links {
+            gap: 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 10vw, 4rem);
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+        }
+    }
+
+    .title-c1 {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .A {
+        margin-top: -3px;
+    }
+
+    .I {
+        color: var(--primary);
+    }
+</style>
+
+<body>
+    <nav id="navbar">
+        <div class="logo">
+            <img src="image 1.svg" alt="CMC-RIDES Logo">
+        </div>
+        <ul class="nav-links">
+            <li><a href="/index.html">informations</a></li>
+            <li><a href="#propposer_un_trajet">propposer un trajet</a></li>
+            <li><a href="/profile.html">Profil</a></li>
+            <li class="A nav-item d-flex align-items-center">
+                <!-- Passager Icon -->
+                <i class="I bi bi-car-front-fill fs-4 ms-2 mx-4" title="Passager"></i>
+
+                <!-- Switch Bootstrap -->
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="modeSwitch">
+                    <label class="form-check-label" for="modeSwitch"></label>
+                </div>
+
+                <!-- Conducteur Icon -->
+                <i class="I bi bi-person-circle fs-4 ms-2" title="Conducteur"></i>
+            </li>
+        </ul>
+
+        <!-- Script placé après la fin du <ul> -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const modeSwitch = document.getElementById('modeSwitch');
+
+                modeSwitch.addEventListener('change', () => {
+                    if (modeSwitch.checked) {
+                        // Conducteur activé
+                        window.location.href = "/PassagerHome.html";
+
+                    } else {
+                        // Passager activé
+                        window.location.href = "/ConducteurHome.html";
+                    }
+                });
+            });
+        </script>
+
+
+    </nav>
+
+    <section class="hero" id="accueil">
+        <div class="hero-content">
+            <h1>CMC-RIDES</h1>
+            <p>Votre solution de transport fiable et sécurisée. Réservez votre trajet en quelques clics.</p>
+            <a href="#propposer_un_trajet" class="btn-primary">PROPPOSER UN TRAJET</a>
+        </div>
+    </section>
+
+    <section class="content-section" id="reservation">
+        <div class="container" id="propposer_un_trajet">
+            <h1 class="title-c1 --text-dark">Propposer votre trajet</h1>
+            <iframe src="map.html" width="100%" height="1300px" style="border:none;"></iframe>
+
+        </div>
+    </section>
+
+    <section class="content-section bg-light" id="reservations-attente">
+        <div class="container">
+            <h2 class="section-title">-</h2>
+            <div id="reservationsEnAttente" class="reservations-container"></div>
+        </div>
+    </section>
+
+    <style>
+        .reservations-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .reservation-item {
+            background: #ffffff;
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .reservation-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .reservation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .reservation-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .reservation-passagers {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 3px solid #3498db;
+        }
+
+        .reservation-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-valider {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-valider:hover {
+            background: #219a52;
+            transform: translateY(-1px);
+        }
+
+        .btn-annuler {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-annuler:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        .statut-attente {
+            color: #e67e22;
+            font-weight: bold;
+            background: #fef9e7;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+
+        .aucune-reservation {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 40px 0;
+        }
+    </style>
+
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js";
+        const SUPABASE_URL = "https://krxosvsxazhdahyaecin.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtyeG9zdnN4YXpoZGFoeWFlY2luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1ODUzNzYsImV4cCI6MjA3NzE2MTM3Nn0.jEk8UPTRAje8BNw2oapXeobG4HNglEZ5x6zzccOiG08";
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Charger les réservations en attente
+        async function chargerReservationsEnAttente() {
+    try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+            console.log("Utilisateur non connecté");
+            return;
+        }
+
+        const { data: reservations, error } = await supabase
+            .from("reservations")
+            .select("*")
+            .eq("emailC", user.email)
+            .eq("valide_passager", true)
+            .eq("valide_conducteur", false)
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            console.error("Erreur lors du chargement:", error);
+            return;
+        }
+
+        const container = document.getElementById("reservationsEnAttente");
+        container.innerHTML = '';
+
+        if (!reservations || reservations.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px; color: #7f8c8d;">
+                    <div style="width: 60px; height: 60px; border: 2px solid #e0e0e0; border-radius: 12px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+                        <div style="width: 24px; height: 24px; border: 2px solid #e0e0e0; border-radius: 6px;"></div>
+                    </div>
+                    <h4 style="color: #2c3e50; margin-bottom: 8px; font-weight: 600;">Aucune réservation</h4>
+                    <p style="margin: 0; font-size: 0.9em; color: #7f8c8d;">Toutes les réservations sont traitées</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Header section
+        container.innerHTML = `
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h3 style="color: #2c3e50; margin-bottom: 8px; font-weight: 700; font-size: 1.4em;">Réservations en attente</h3>
+                <p style="color: #7f8c8d; margin: 0; font-size: 0.9em;">${reservations.length} réservation(s) nécessitent votre validation</p>
+            </div>
+        `;
+
+        reservations.forEach(reservation => {
+            const placesReservees = reservation.places_reserves || 0;
+            const prixParPlace = (reservation.prix_reservation / reservation.nombres_de_paces);
+            const prixTotal = prixParPlace * placesReservees;
+            const passagers = reservation.emailp || [];
+
+            const reservationCard = document.createElement('div');
+            reservationCard.style.background = "#ffffff";
+            reservationCard.style.border = "1px solid #e0e0e0";
+            reservationCard.style.borderRadius = "12px";
+            reservationCard.style.padding = "20px";
+            reservationCard.style.marginBottom = "16px";
+            reservationCard.style.boxShadow = "0 2px 12px rgba(0, 0, 0, 0.04)";
+            reservationCard.style.transition = "all 0.3s ease";
+
+            reservationCard.innerHTML = `
+                <!-- Header avec trajet et statut -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
+                    <div style="flex: 1;">
+                        <div style="color: #2c3e50; font-weight: 700; font-size: 1.1em; margin-bottom: 4px;">
+                            ${reservation.debut} → ${reservation.fin}
+                        </div>
+                        <div style="color: #7f8c8d; font-size: 0.85em;">
+                            ${reservation.typeVehicule} • ${reservation.Type_de_course}
+                        </div>
+                    </div>
+                    <div style="color: #e67e22; font-size: 0.8em; font-weight: 600; background: #fef9e7; padding: 6px 12px; border-radius: 16px; border: 1px solid #ffeaa7;">
+                        En attente
+                    </div>
+                </div>
+
+                <!-- Informations principales -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <div style="color: #7f8c8d; font-size: 0.8em; margin-bottom: 4px; font-weight: 500;">Places réservées</div>
+                        <div style="color: #2c3e50; font-weight: 700; font-size: 1em;">${placesReservees}/${reservation.nombres_de_paces}</div>
+                    </div>
+                    <div>
+                        <div style="color: #7f8c8d; font-size: 0.8em; margin-bottom: 4px; font-weight: 500;">Prix total</div>
+                        <div style="color: #27ae60; font-weight: 700; font-size: 1em;">${prixTotal.toFixed(2)} MAD</div>
+                    </div>
+                </div>
+
+                <!-- Section passagers -->
+                <div style="background: #f8f9fa; padding: 14px; border-radius: 8px; margin-bottom: 16px;">
+                    <div style="color: #2c3e50; font-weight: 600; margin-bottom: 8px; font-size: 0.9em;">Passagers</div>
+                    <div style="color: #5d6d7e; font-size: 0.85em; line-height: 1.5;">
+                        ${passagers.map(email => `
+                            <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                                <div style="width: 8px; height: 8px; background: #3498db; border-radius: 50%; margin-right: 10px;"></div>
+                                ${email}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="validerReservation(${reservation.id})" 
+                            style="flex: 1; background: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 6px; 
+                                   cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.2s ease;">
+                        Valider
+                    </button>
+                    <button onclick="annulerReservation(${reservation.id})" 
+                            style="flex: 1; background: #e74c3c; color: white; border: none; padding: 12px 20px; border-radius: 6px; 
+                                   cursor: pointer; font-weight: 600; font-size: 0.9em; transition: all 0.2s ease;">
+                        Refuser
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(reservationCard);
+
+            // Effets hover discrets
+            reservationCard.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+            });
+            
+            reservationCard.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 2px 12px rgba(0, 0, 0, 0.04)';
+            });
+
+            // Effets sur les boutons
+            const buttons = reservationCard.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-1px)';
+                });
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+
+    } catch (error) {
+        console.error("Erreur générale:", error);
+    }
+}
+        //ici Fonction pour valider une réservation
+        window.validerReservation = async function (reservationId) {
+            if (!confirm("Êtes-vous sûr de vouloir valider cette réservation ?")) {
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from("reservations")
+                    .update({ valide_conducteur: true })
+                    .eq("id", reservationId);
+
+                if (error) {
+                    alert("❌ Erreur lors de la validation : " + error.message);
+                } else {
+                    alert("✅ Réservation validée avec succès !");
+                    chargerReservationsEnAttente();
+                }
+            } catch (error) {
+                console.error("Erreur:", error);
+                alert("❌ Erreur lors de la validation !");
+            }
+        };
+
+        //ici Fonction pour annuler une réservation
+        window.annulerReservation = async function (reservationId) {
+            if (!confirm("Êtes-vous sûr de vouloir refuser cette réservation ? Cette action est irréversible.")) {
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from("reservations")
+                    .update({
+                        valide_passager: false,
+                        places_reserves: 0,
+                        emailp: []
+                    })
+                    .eq("id", reservationId);
+
+                if (error) {
+                    alert("Erreur lors du refus : " + error.message);
+                } else {
+                    alert("Réservation refusée !!");
+                    chargerReservationsEnAttente();
+                }
+            } catch (error) {
+                console.error("Erreur:", error);
+                alert("Erreur lors du refus !");
+            }
+        };
+
+        //ici Charger au démarrage et toutes les 10 secondes
+        document.addEventListener('DOMContentLoaded', () => {
+            chargerReservationsEnAttente();
+            // Recharger automatiquement toutes les 10 secondes
+            setInterval(chargerReservationsEnAttente, 10000);
+        });
+
+        // ICI Ecouter les changements en temps réel TMPS REEL
+        supabase
+            .channel('reservations-changes')
+            .on('postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'reservations'
+                },
+                () => {
+                    chargerReservationsEnAttente();
+                }
+            )
+            .subscribe();
+
+
+    </script>
+</body>
+
+</html>

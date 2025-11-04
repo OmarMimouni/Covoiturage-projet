@@ -1,117 +1,848 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
-    <title>Itinéraire avec autocomplétion</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passager - CMC-RIDES</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
     <style>
-        body { margin:0; font-family:Arial; }
-        #map { height: 600px; width: 100%; }
-        .controls {
-            padding: 10px;
-            background: #fff;
-            z-index: 1000;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --accent-dark: #2980b9;
+            --text-dark: #333;
+            --white: #fff;
         }
-        input { padding: 6px; margin: 4px 0; width: 220px; }
-        button { padding: 6px 12px; cursor:pointer; margin-top:4px; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 60px;
+            width: auto;
+            transform: scale(2.3, 2.3);
+            transition: transform 0.3s ease;
+        }
+
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            margin: 0;
+        }
+
+        .nav-links a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            transition: color 0.3s ease;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-dark);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(rgba(137, 134, 134, 0.5), rgba(60, 60, 60, 0.5)),
+                url('BG-PASSAGER.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            overflow: hidden;
+            padding: 0 5%;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+            max-width: 900px;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+            animation: fadeInUp 0.8s ease;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero p {
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 3rem;
+            line-height: 1.8;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .title-res {
+            text-align: center;
+            margin: 50px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Section de contenu */
+        .content-section {
+            padding: 5rem 5%;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1.5rem;
+            }
+
+            .hero h1 {
+                font-size: clamp(2.5rem, 10vw, 4rem);
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+        }
+
+        .A {
+            margin-top: -4px;
+        }
     </style>
 </head>
+
 <body>
+    <nav id="navbar">
+        <div class="logo">
+            <img src="image 1.svg" alt="CMC-RIDES Logo">
+        </div>
+        <ul class="nav-links">
+            <li><a href="/index.html">informations</a></li>
+            <li><a href="#reservation">réserver</a></li>
+            <li><a href="/profile.html">Profil</a></li>
+            <li class="A nav-item d-flex align-items-center">
+                <!-- Passager Icon -->
 
-<div class="controls">
-    <label>Lieu de départ:</label><br>
-    <input type="text" id="start" list="start-list" placeholder="Ex: Paris"><br>
-    <datalist id="start-list"></datalist>
+                <i class="I bi bi-person-circle fs-4 ms-2 mx-4" title="Conducteur"></i>
 
-    <label>Lieu d'arrivée:</label><br>
-    <input type="text" id="end" list="end-list" placeholder="Ex: Versailles"><br>
-    <datalist id="end-list"></datalist>
+                <!-- Switch Bootstrap -->
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="modeSwitch">
+                    <label class="form-check-label" for="modeSwitch"></label>
+                </div>
 
-    <button id="routeBtn">Afficher l'itinéraire</button>
-</div>
+                <!-- Conducteur Icon -->
+                <i class="I bi bi-car-front-fill fs-4 ms-2 " title="Passager"></i>
+            </li>
+        </ul>
 
-<div id="map"></div>
+        <!-- Script placé après la fin du <ul> -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const modeSwitch = document.getElementById('modeSwitch');
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-<script src="https://unpkg.com/lrm-openrouteservice/dist/leaflet-routing-machine.openrouteservice.js"></script>
+                modeSwitch.addEventListener('change', () => {
+                    if (modeSwitch.checked) {
+                        // Conducteur activé
+                        window.location.href = "/ConducteurHome.html";
 
-<script>
-    const map = L.map('map').setView([48.8566, 2.3522], 12); // Paris par défaut
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-
-    let routingControl = null;
-
-    // Autocomplétion avec Photon
-    async function fetchSuggestions(inputId, listId) {
-        const input = document.getElementById(inputId);
-        const datalist = document.getElementById(listId);
-
-        input.addEventListener('input', async () => {
-            const value = input.value;
-            if (value.length < 3) return;
-
-            const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(value)}&limit=5`);
-            const data = await res.json();
-
-            datalist.innerHTML = '';
-            data.features.forEach(feature => {
-                const option = document.createElement('option');
-                let displayName = feature.properties.name || '';
-                if(feature.properties.city) displayName += ', ' + feature.properties.city;
-                if(feature.properties.country) displayName += ', ' + feature.properties.country;
-                option.value = displayName;
-                datalist.appendChild(option);
+                    } else {
+                        // Passager activé
+                        window.location.href = "/PassagerHome.html";
+                    }
+                });
             });
-        });
-    }
+        </script>
 
-    fetchSuggestions('start', 'start-list');
-    fetchSuggestions('end', 'end-list');
 
-    // Géocodage
-    async function geocode(address) {
-        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(address)}&limit=1`);
-        const data = await res.json();
-        if(data.features && data.features.length > 0) {
-            return [data.features[0].geometry.coordinates[1], data.features[0].geometry.coordinates[0]];
-        } else {
-            alert("Adresse non trouvée : " + address);
-            return null;
+    </nav>
+
+
+    <section class="hero" id="accueil">
+        <div class="hero-content">
+            <h1>CMC-RIDES</h1>
+            <p>Votre solution de transport fiable et sécurisée. Réservez votre trajet en quelques clics.</p>
+            <a href="#reservation" class="btn-primary">Réserver maintenant</a>
+        </div>
+    </section>
+
+    <section class="content-section" id="reservation">
+        <div class="container" id="reservation">
+            <h1 class="title-res">RESERVATION-PASSAGER </h1>
+            <iframe src="map2.html" width="100%" height="1400px" style="border:none;"></iframe>
+        </div>
+    </section>
+
+    <section class="content-section bg-light" id="profil">
+        <div class="container">
+            <h1 class="title-voir">Les courses trouvées</h1>
+            <div id="suggestions"></div>
+        </div>
+    </section>
+
+
+    <style>
+        .title-voir {
+            text-align: center;
+            margin-bottom: 20px;
         }
-    }
 
-    // Calcul de l'itinéraire
-    document.getElementById('routeBtn').addEventListener('click', async () => {
-        const startAddr = document.getElementById('start').value;
-        const endAddr = document.getElementById('end').value;
+        .suggest {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #ffffff;
+            border: 2px solid #007bff;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin: 10px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
 
-        const startCoords = await geocode(startAddr);
-        const endCoords = await geocode(endAddr);
-        if(!startCoords || !endCoords) return;
+        .suggest:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0, 91, 187, 0.2);
+            background: #f8fbff;
+        }
 
-        if(routingControl) map.removeControl(routingControl);
+        .suggest-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-        routingControl = L.Routing.control({
-            waypoints: [
-                L.latLng(startCoords[0], startCoords[1]),
-                L.latLng(endCoords[0], endCoords[1])
-            ],
-            router: new L.Routing.OpenRouteService('eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjY2ZGY2ZTQyY2JkMTQ3OGJhZWEzMDIyNjIwNGZhNDk1IiwiaCI6Im11cm11cjY0In0=='), // <--- Mets ta clé ORS ici
-            lineOptions: { styles: [{ color: 'blue', opacity: 0.7, weight: 5 }] },
-            routeWhileDragging: true,
-            showAlternatives: true,
-        }).addTo(map);
+        .suggest-header img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #007bff;
+        }
 
-        map.fitBounds([startCoords, endCoords]);
-    });
-</script>
+        .suggest-header .name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #003f7f;
+        }
+
+        .suggest-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 0.95em;
+            color: #333;
+        }
+
+        .suggest-body span {
+            margin: 3px 0;
+        }
+
+        .suggest-footer {
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: #007bff;
+            text-align: right;
+        }
+
+        .btn-reserver {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-reserver:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .btn-detaille {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-detaille :hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+    </style>
+
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+        const SUPABASE_URL = "https://krxosvsxazhdahyaecin.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtyeG9zdnN4YXpoZGFoeWFlY2luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1ODUzNzYsImV4cCI6MjA3NzE2MTM3Nn0.jEk8UPTRAje8BNw2oapXeobG4HNglEZ5x6zzccOiG08";
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        window.voirDetails = async function (emailConducteur) {
+            console.log("Détails demandés pour:", emailConducteur);
+
+            try {
+                // Récupérer les informations du conducteur depuis la table utilisateurs
+                const { data: utilisateur, error: errorUtilisateur } = await supabase
+                    .from("utilisateurs")
+                    .select("nom, prenom, email, photo_conducteur, bio_conducteur")
+                    .eq("email", emailConducteur)
+                    .single();
+
+                if (errorUtilisateur || !utilisateur) {
+                    alert("Aucune information trouvée pour ce conducteur !");
+                    console.error("Erreur utilisateur:", errorUtilisateur);
+                    return;
+                }
+
+                // Récupérer les informations du véhicule depuis la table reservations
+                const { data: reservation, error: errorReservation } = await supabase
+                    .from("reservations")
+                    .select("typeVehicule")
+                    .eq("emailC", emailConducteur)
+                    .limit(1)
+                    .single();
+
+                const typeVehicule = reservation?.typeVehicule || "Non spécifié";
+
+                // Informations de base
+                const nomComplet = `${utilisateur.prenom || ''} ${utilisateur.nom || ''}`.trim();
+
+                // Gestion de l'image
+                let photoUrl;
+                if (utilisateur.photo_conducteur) {
+                    // Si c'est déjà une URL complète
+                    if (utilisateur.photo_conducteur.startsWith('http')) {
+                        photoUrl = utilisateur.photo_conducteur;
+                    }
+                    // Si c'est un tableau JSON (format Supabase)
+                    else if (utilisateur.photo_conducteur.startsWith('[')) {
+                        try {
+                            const photos = JSON.parse(utilisateur.photo_conducteur);
+                            if (photos && photos.length > 0) {
+                                // Récupérer l'URL publique depuis Supabase Storage
+                                const { data: urlData } = supabase.storage
+                                    .from('photos_utilisateurs')
+                                    .getPublicUrl(photos[0]);
+                                photoUrl = urlData.publicUrl;
+                            }
+                        } catch (e) {
+                            console.log("Erreur parsing JSON photo:", e);
+                            photoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomComplet)}&background=007bff&color=fff&size=120`;
+                        }
+                    }
+                    // Si c'est un simple nom de fichier
+                    else {
+                        // Récupérer l'URL publique depuis Supabase Storage
+                        const { data: urlData } = supabase.storage
+                            .from('photos_utilisateurs')
+                            .getPublicUrl(utilisateur.photo_conducteur);
+                        photoUrl = urlData.publicUrl;
+                    }
+                } else {
+                    // Avatar par défaut si pas de photo
+                    photoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomComplet)}&background=007bff&color=fff&size=120`;
+                }
+
+                // ✅ Création du popup stylé
+                let detailsBox = document.getElementById("details-conducteur");
+                if (detailsBox) {
+                    detailsBox.remove();
+                }
+
+                detailsBox = document.createElement("div");
+                detailsBox.id = "details-conducteur";
+                detailsBox.style.position = "fixed";
+                detailsBox.style.top = "50%";
+                detailsBox.style.left = "50%";
+                detailsBox.style.transform = "translate(-50%, -50%)";
+                detailsBox.style.background = "#fff";
+                detailsBox.style.padding = "25px";
+                detailsBox.style.borderRadius = "10px";
+                detailsBox.style.boxShadow = "0 5px 20px rgba(0,0,0,0.15)";
+                detailsBox.style.zIndex = "10000";
+                detailsBox.style.maxWidth = "450px";
+                detailsBox.style.width = "90%";
+                detailsBox.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+                detailsBox.style.border = "2px solid #3498db";
+
+                // Contenu HTML du popup avec gestion d'erreur pour l'image
+                detailsBox.innerHTML = `
+            <div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #ecf0f1;">
+                <img src="${photoUrl}" alt="Photo de ${nomComplet}" 
+                     onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nomComplet)}&background=007bff&color=fff&size=120'"
+                     style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #3498db; object-fit: cover; margin-bottom: 10px;">
+                <h3 style="color: #2c3e50; margin-bottom: 5px; font-size: 1.3em;">${nomComplet}</h3>
+                <p style="color: #7f8c8d; margin: 0; font-size: 0.9em;">${utilisateur.email}</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 8px 0; border-bottom: 1px solid #ecf0f1;">
+                    <span style="color: #2c3e50; font-weight: 500;">Nom:</span>
+                    <span style="color: #34495e;">${utilisateur.nom || "Non renseigné"}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 8px 0; border-bottom: 1px solid #ecf0f1;">
+                    <span style="color: #2c3e50; font-weight: 500;">Prénom:</span>
+                    <span style="color: #34495e;">${utilisateur.prenom || "Non renseigné"}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 8px 0; border-bottom: 1px solid #ecf0f1;">
+                    <span style="color: #2c3e50; font-weight: 500;">Email:</span>
+                    <span style="color: #34495e;">${utilisateur.email}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 8px 0; border-bottom: 1px solid #ecf0f1;">
+                    <span style="color: #2c3e50; font-weight: 500;">Véhicule:</span>
+                    <span style="color: #34495e;">${typeVehicule}</span>
+                </div>
+            </div>
+
+            ${utilisateur.bio_conducteur ? `
+            <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 20px; border-left: 3px solid #3498db;">
+                <strong style="color: #2c3e50; display: block; margin-bottom: 5px;">À propos</strong>
+                <p style="color: #5d6d7e; margin: 0; font-size: 0.9em; line-height: 1.4;">${utilisateur.bio_conducteur}</p>
+            </div>
+            ` : ''}
+
+            <div style="text-align: center;">
+                <button onclick="fermerDetails()" 
+                        style="background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 0.9em;">
+                    Fermer
+                </button>
+            </div>
+        `;
+
+                document.body.appendChild(detailsBox);
+
+            } catch (error) {
+                console.error("Erreur:", error);
+                alert("Erreur lors du chargement des informations du conducteur !");
+            }
+        };
+
+
+
+        window.fermerDetails = function () {
+            const detailsBox = document.getElementById("details-conducteur");
+            if (detailsBox) {
+                detailsBox.remove();
+            }
+        };
+
+        // ici j'ai utiliser n'importe qu'elle clique dehor il me fait sorti de la petite page de details
+        document.addEventListener('click', function (event) {
+            const detailsBox = document.getElementById("details-conducteur");
+            if (detailsBox && !detailsBox.contains(event.target)) {
+                // Vérifier si le clic n'est pas sur un bouton "Voir détails"
+                if (!event.target.classList.contains('btn-detaille')) {
+                    detailsBox.remove();
+                }
+            }
+        });
+
+        // ✅ Fonction pour réserver avec sélection de places - Version corrigée
+        window.reserver = async function (emailConducteur, reservationId, prixParPlace, nbPlacesTotal) {
+            console.log("Réservation pour:", emailConducteur, "ID:", reservationId);
+
+            try {
+                // Récupérer les informations de la réservation
+                const { data: reservation, error: resError } = await supabase
+                    .from("reservations")
+                    .select("*")
+                    .eq("id", reservationId)
+                    .single();
+
+                if (resError || !reservation) {
+                    alert("Erreur lors de la récupération de la réservation !");
+                    return;
+                }
+
+                // Calculer les places déjà réservées
+                const placesDejaReservees = reservation.places_reserves || 0;
+                const placesDisponibles = reservation.nombres_de_paces - placesDejaReservees;
+
+                if (placesDisponibles <= 0) {
+                    alert("Désolé, plus de places disponibles pour ce trajet !");
+                    return;
+                }
+
+                // ✅ Création du popup de réservation
+                let reservationBox = document.getElementById("reservation-box");
+                if (reservationBox) {
+                    reservationBox.remove();
+                }
+
+                reservationBox = document.createElement("div");
+                reservationBox.id = "reservation-box";
+                reservationBox.style.position = "fixed";
+                reservationBox.style.top = "50%";
+                reservationBox.style.left = "50%";
+                reservationBox.style.transform = "translate(-50%, -50%)";
+                reservationBox.style.background = "#fff";
+                reservationBox.style.padding = "25px";
+                reservationBox.style.borderRadius = "8px";
+                reservationBox.style.boxShadow = "0 4px 15px rgba(0,0,0,0.1)";
+                reservationBox.style.zIndex = "10000";
+                reservationBox.style.maxWidth = "450px";
+                reservationBox.style.width = "90%";
+                reservationBox.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+                reservationBox.style.border = "1px solid #e0e0e0";
+
+                // Générer les places - Version simplifiée sans checkboxes
+                let placesHTML = '';
+                for (let i = 1; i <= reservation.nombres_de_paces; i++) {
+                    const estDejaReservee = i <= placesDejaReservees;
+
+                    placesHTML += `
+                <div class="place-item" 
+                     data-place="${i}"
+                     data-reserved="${estDejaReservee}"
+                     style="display: inline-block; margin: 8px; text-align: center;">
+                    <div class="place-display"
+                         style="display: block; width: 45px; height: 45px; border: 2px solid ${estDejaReservee ? '#bdc3c7' : '#3498db'}; 
+                                border-radius: 6px; background: ${estDejaReservee ? '#ecf0f1' : 'white'}; 
+                                color: ${estDejaReservee ? '#95a5a6' : '#3498db'}; 
+                                cursor: ${estDejaReservee ? 'not-allowed' : 'pointer'}; 
+                                display: flex; align-items: center; justify-content: center; 
+                                font-weight: 600; font-size: 0.9em; transition: all 0.2s ease;">
+                        ${i}
+                    </div>
+                    ${estDejaReservee ? '<div style="font-size: 0.65em; color: #95a5a6; margin-top: 4px;">Occupé</div>' : ''}
+                </div>
+            `;
+                }
+
+                // Layout simplifié
+                reservationBox.innerHTML = `
+            <div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #ecf0f1;">
+                <h3 style="color: #2c3e50; margin-bottom: 8px; font-size: 1.3em;">Sélection des places</h3>
+                <p style="color: #7f8c8d; margin: 0; font-size: 0.9em;">${reservation.debut} → ${reservation.fin}</p>
+                <p style="color: #7f8c8d; margin: 4px 0; font-size: 0.9em;">${prixParPlace} MAD par place</p>
+            </div>
+
+            <!-- Layout simplifié -->
+            <div style="margin-bottom: 20px;">
+                <!-- Conducteur -->
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <div style="display: inline-block; width: 50px; height: 50px; border: 2px solid #2c3e50; 
+                                border-radius: 6px; background: #f8f9fa; display: flex; align-items: center; 
+                                justify-content: center; color: #2c3e50; font-weight: 600; margin-bottom: 5px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-5-4-5-4 5-4 5-2.7.6-3.5.1C4.7 11.3 4 12.1 4 13v3c0 .6.4 1 1 1h2"/>
+                            <circle cx="7" cy="17" r="2"/>
+                            <circle cx="17" cy="17" r="2"/>
+                            <path d="M8 10h8"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 0.75em; color: #7f8c8d;">Conducteur</div>
+                </div>
+
+                <!-- Places passagers -->
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <div style="color: #2c3e50; margin-bottom: 10px; font-weight: 600;">Places passagers</div>
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
+                        ${placesHTML}
+                    </div>
+                </div>
+
+                <!-- Informations réservation -->
+                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9em;">
+                        <span style="color: #2c3e50;">Places disponibles:</span>
+                        <span style="color: #34495e; font-weight: 600;">${placesDisponibles}/${reservation.nombres_de_paces}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9em;">
+                        <span style="color: #2c3e50;">Total à payer:</span>
+                        <span style="color: #27ae60; font-weight: 600;" id="totalPrix">0 MAD</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button onclick="confirmerReservation('${reservationId}', '${emailConducteur}', ${prixParPlace})" 
+                        id="btnConfirmer"
+                        style="background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 4px; 
+                               cursor: pointer; margin-right: 8px; font-weight: 500; font-size: 0.85em; opacity: 0.6;
+                               transition: all 0.2s ease;" 
+                        disabled>
+                    Confirmer (0 MAD)
+                </button>
+                <button onclick="fermerReservation()" 
+                        style="background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 4px; 
+                               cursor: pointer; font-weight: 500; font-size: 0.85em; transition: all 0.2s ease;">
+                    Annuler
+                </button>
+            </div>
+        `;
+
+                document.body.appendChild(reservationBox);
+
+                // Gestion de la sélection des places - Version corrigée
+                const placeItems = reservationBox.querySelectorAll('.place-item');
+                const btnConfirmer = document.getElementById('btnConfirmer');
+                const totalPrixElement = document.getElementById('totalPrix');
+
+                let placesSelectionnees = [];
+
+                placeItems.forEach(placeItem => {
+                    const placeDisplay = placeItem.querySelector('.place-display');
+                    const placeNumber = parseInt(placeItem.getAttribute('data-place'));
+                    const estDejaReservee = placeItem.getAttribute('data-reserved') === 'true';
+
+                    if (!estDejaReservee) {
+                        placeDisplay.addEventListener('click', function () {
+                            // Vérifier si la place est déjà sélectionnée
+                            const index = placesSelectionnees.indexOf(placeNumber);
+
+                            if (index === -1) {
+                                // Ajouter la place
+                                placesSelectionnees.push(placeNumber);
+                                placeDisplay.style.background = '#3498db';
+                                placeDisplay.style.color = 'white';
+                                placeDisplay.style.borderColor = '#3498db';
+                            } else {
+                                // Retirer la place
+                                placesSelectionnees.splice(index, 1);
+                                placeDisplay.style.background = 'white';
+                                placeDisplay.style.color = '#3498db';
+                                placeDisplay.style.borderColor = '#3498db';
+                            }
+
+                            // Calculer le total
+                            const nbPlacesSelectionnees = placesSelectionnees.length;
+                            const totalPrix = (nbPlacesSelectionnees * prixParPlace).toFixed(2);
+
+                            totalPrixElement.textContent = `${totalPrix} MAD`;
+
+                            if (nbPlacesSelectionnees > 0) {
+                                btnConfirmer.textContent = `Confirmer (${totalPrix} MAD)`;
+                                btnConfirmer.style.opacity = '1';
+                                btnConfirmer.disabled = false;
+                                btnConfirmer.style.background = '#27ae60';
+                            } else {
+                                btnConfirmer.textContent = 'Confirmer (0 MAD)';
+                                btnConfirmer.style.opacity = '0.6';
+                                btnConfirmer.disabled = true;
+                                btnConfirmer.style.background = '#95a5a6';
+                            }
+                        });
+                    }
+                });
+
+                // Stocker les places sélectionnées globalement pour la confirmation
+                window.currentSelectedPlaces = {
+                    reservationId: reservationId,
+                    places: placesSelectionnees,
+                    prixParPlace: prixParPlace,
+                    emailConducteur: emailConducteur
+                };
+
+                // Effets hover sur les boutons
+                const buttons = reservationBox.querySelectorAll('button');
+                buttons.forEach(button => {
+                    button.addEventListener('mouseenter', function () {
+                        if (!this.disabled) {
+                            this.style.transform = 'translateY(-1px)';
+                        }
+                    });
+                    button.addEventListener('mouseleave', function () {
+                        this.style.transform = 'translateY(0)';
+                    });
+                });
+
+            } catch (error) {
+                console.error("Erreur:", error);
+                alert("Erreur lors du chargement de la réservation !");
+            }
+        };
+
+        // ✅ Fonction pour confirmer la réservation - Version corrigée
+        window.confirmerReservation = async function (reservationId, emailConducteur, prixParPlace) {
+            try {
+                // Récupérer les places sélectionnées depuis la variable globale
+                const selectedPlaces = window.currentSelectedPlaces;
+
+                if (!selectedPlaces || selectedPlaces.places.length === 0) {
+                    alert("Veuillez sélectionner au moins une place !");
+                    return;
+                }
+
+                const placesSelectionnees = selectedPlaces.places;
+                const nbPlacesSelectionnees = placesSelectionnees.length;
+                const totalPrix = (nbPlacesSelectionnees * prixParPlace).toFixed(2);
+
+                // Récupérer l'utilisateur connecté
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError || !user) {
+                    alert("Vous devez être connecté pour effectuer une réservation !");
+                    return;
+                }
+
+                const emailPassager = user.email;
+
+                // Récupérer la réservation actuelle
+                const { data: reservation, error: resError } = await supabase
+                    .from("reservations")
+                    .select("places_reserves, emailp")
+                    .eq("id", reservationId)
+                    .single();
+
+                if (resError) {
+                    alert("Erreur lors de la récupération de la réservation !");
+                    return;
+                }
+
+                // Calculer les nouvelles valeurs
+                const nouvellesPlacesReservees = (reservation.places_reserves || 0) + nbPlacesSelectionnees;
+                const nouveauxEmails = [...(reservation.emailp || []), emailPassager];
+
+                // Mettre à jour la réservation
+                const { error: updateError } = await supabase
+                    .from("reservations")
+                    .update({
+                        places_reserves: nouvellesPlacesReservees,
+                        emailp: nouveauxEmails,
+                        valide_passager: true
+                    })
+                    .eq("id", reservationId);
+
+                if (updateError) {
+                    alert("Erreur lors de la réservation : " + updateError.message);
+                    return;
+                }
+
+                alert(`✅ Réservation confirmée !\n\nPlaces: ${nbPlacesSelectionnees}\nTotal: ${totalPrix} MAD\n\nUn email de confirmation a été envoyé.`);
+
+                // Nettoyer la variable globale
+                window.currentSelectedPlaces = null;
+
+                // Fermer le popup
+                fermerReservation();
+
+                // Recharger les suggestions
+                window.location.reload();
+
+            } catch (error) {
+                console.error("Erreur:", error);
+                alert("Erreur lors de la confirmation de la réservation !");
+            }
+        };
+
+        // ✅ Fonction pour fermer le popup de réservation
+        window.fermerReservation = function () {
+            // Nettoyer la variable globale
+            window.currentSelectedPlaces = null;
+
+            const reservationBox = document.getElementById("reservation-box");
+            if (reservationBox) {
+                reservationBox.remove();
+            }
+        };
+
+    </script>
 
 </body>
+
 </html>

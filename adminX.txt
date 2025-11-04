@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - CMC-RIDES</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --accent-dark: #2980b9;
+            --text-dark: #333;
+            --white: #fff;
+            --light-bg: #f8f9fa;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--light-bg);
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 60px;
+            width: auto;
+            transform: scale(2.3, 2.3);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .nav-links a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            transition: color 0.3s ease;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-dark);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 100px;
+            padding: 2rem 5%;
+        }
+
+        .section-title {
+            margin-bottom: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .badge-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .badge-info {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            border-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Tabs */
+        .nav-tabs {
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--accent);
+            background-color: transparent;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1.5rem;
+            }
+            
+            .main-content {
+                margin-top: 120px;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar">
+        <div class="logo">
+            <img src="image 1.svg" alt="CMC-RIDES Logo">
+        </div>
+        <ul class="nav-links">
+            <li><a href="/index.html">Accueil</a></li>
+            <li><a href="#statistiques">Statistiques</a></li>
+            <li><a href="#utilisateurs">Utilisateurs</a></li>
+            <li><a href="#reservations">Réservations</a></li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <!-- Section Statistiques -->
+        <section id="statistiques">
+            <h2 class="section-title">Tableau de Bord - Statistiques</h2>
+            
+            <div class="row">
+                <!-- Cartes de statistiques -->
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="stat-number" id="total-reservations">0</div>
+                        <div class="stat-label">Réservations Total</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="stat-number" id="total-utilisateurs">0</div>
+                        <div class="stat-label">Utilisateurs</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="stat-number" id="reservations-validees">0</div>
+                        <div class="stat-label">Réservations Validées</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="stat-number" id="revenu-total">0 MAD</div>
+                        <div class="stat-label">Revenu Total</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <!-- Graphiques -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">Réservations par Jour (7 derniers jours)</div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="reservationsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">Statut des Réservations</div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Utilisateurs -->
+        <section id="utilisateurs" class="mt-5">
+            <h2 class="section-title">Gestion des Utilisateurs</h2>
+            
+            <ul class="nav nav-tabs" id="userTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="all-users-tab" data-bs-toggle="tab" data-bs-target="#all-users" type="button" role="tab">Tous les Utilisateurs</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="conducteurs-tab" data-bs-toggle="tab" data-bs-target="#conducteurs" type="button" role="tab">Conducteurs</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="passagers-tab" data-bs-toggle="tab" data-bs-target="#passagers" type="button" role="tab">Passagers</button>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="userTabsContent">
+                <!-- Tous les utilisateurs -->
+                <div class="tab-pane fade show active" id="all-users" role="tabpanel">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Rôle</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="all-users-table">
+                                <!-- Les données seront chargées ici -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Conducteurs -->
+                <div class="tab-pane fade" id="conducteurs" role="tabpanel">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Véhicule</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="conducteurs-table">
+                                <!-- Les données seront chargées ici -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Passagers -->
+                <div class="tab-pane fade" id="passagers" role="tabpanel">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Réservations</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="passagers-table">
+                                <!-- Les données seront chargées ici -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Réservations -->
+        <section id="reservations" class="mt-5">
+            <h2 class="section-title">Gestion des Réservations</h2>
+            
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Conducteur</th>
+                            <th>Trajet</th>
+                            <th>Date</th>
+                            <th>Prix</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservations-table">
+                        <!-- Les données seront chargées ici -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal pour détails utilisateur -->
+    <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalLabel">Détails de l'Utilisateur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="userModalBody">
+                    <!-- Contenu chargé dynamiquement -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js";
+        
+        const SUPABASE_URL = "https://krxosvsxazhdahyaecin.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtyeG9zdnN4YXpoZGFoeWFlY2luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1ODUzNzYsImV4cCI6MjA3NzE2MTM3Nn0.jEk8UPTRAje8BNw2oapXeobG4HNglEZ5x6zzccOiG08";
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Variables globales pour les graphiques
+        let reservationsChart, statusChart;
+
+        // Charger les statistiques
+        async function chargerStatistiques() {
+            try {
+                // Récupérer le nombre total de réservations
+                const { count: totalReservations, error: reservationsError } = await supabase
+                    .from('reservations')
+                    .select('*', { count: 'exact', head: true });
+                
+                if (reservationsError) throw reservationsError;
+                
+                // Récupérer le nombre total d'utilisateurs
+                const { count: totalUtilisateurs, error: usersError } = await supabase
+                    .from('utilisateurs')
+                    .select('*', { count: 'exact', head: true });
+                
+                if (usersError) throw usersError;
+                
+                // Récupérer les réservations validées
+                const { count: reservationsValidees, error: valideesError } = await supabase
+                    .from('reservations')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('valide_conducteur', true);
+                
+                if (valideesError) throw valideesError;
+                
+                // Calculer le revenu total
+                const { data: reservationsRevenu, error: revenuError } = await supabase
+                    .from('reservations')
+                    .select('prix_reservation')
+                    .eq('valide_conducteur', true);
+                
+                if (revenuError) throw revenuError;
+                
+                const revenuTotal = reservationsRevenu.reduce((total, res) => total + res.prix_reservation, 0);
+                
+                // Mettre à jour les statistiques
+                document.getElementById('total-reservations').textContent = totalReservations;
+                document.getElementById('total-utilisateurs').textContent = totalUtilisateurs;
+                document.getElementById('reservations-validees').textContent = reservationsValidees;
+                document.getElementById('revenu-total').textContent = `${revenuTotal.toFixed(2)} MAD`;
+                
+                // Charger les graphiques
+                chargerGraphiques();
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des statistiques:', error);
+            }
+        }
+
+        // Charger les graphiques
+        async function chargerGraphiques() {
+            try {
+                // Récupérer les réservations des 7 derniers jours
+                const dateLimite = new Date();
+                dateLimite.setDate(dateLimite.getDate() - 7);
+                
+                const { data: reservations, error } = await supabase
+                    .from('reservations')
+                    .select('created_at')
+                    .gte('created_at', dateLimite.toISOString());
+                
+                if (error) throw error;
+                
+                // Préparer les données pour le graphique des réservations par jour
+                const reservationsParJour = {};
+                
+                // Initialiser les 7 derniers jours avec 0
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    const dateStr = date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+                    reservationsParJour[dateStr] = 0;
+                }
+                
+                // Compter les réservations par jour
+                reservations.forEach(res => {
+                    const date = new Date(res.created_at);
+                    const dateStr = date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+                    
+                    if (reservationsParJour[dateStr] !== undefined) {
+                        reservationsParJour[dateStr]++;
+                    }
+                });
+                
+                // Formater les dates pour l'affichage (JJ/MM)
+                const labels = Object.keys(reservationsParJour).map(dateStr => {
+                    const date = new Date(dateStr);
+                    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                });
+                
+                const data = Object.values(reservationsParJour);
+                
+                // Créer le graphique des réservations par jour
+                const reservationsCtx = document.getElementById('reservationsChart').getContext('2d');
+                if (reservationsChart) reservationsChart.destroy();
+                
+                reservationsChart = new Chart(reservationsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Réservations',
+                            data: data,
+                            backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Réservations: ${context.parsed.y}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Nombre de réservations'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Jours'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Récupérer les statuts des réservations
+                const { data: reservationsStatut, error: statutError } = await supabase
+                    .from('reservations')
+                    .select('valide_passager, valide_conducteur');
+                
+                if (statutError) throw statutError;
+                
+                let enAttente = 0;
+                let validees = 0;
+                let refusees = 0;
+                
+                reservationsStatut.forEach(res => {
+                    if (res.valide_conducteur) {
+                        validees++;
+                    } else if (res.valide_passager && !res.valide_conducteur) {
+                        enAttente++;
+                    } else {
+                        refusees++;
+                    }
+                });
+                
+                // Créer le graphique des statuts
+                const statusCtx = document.getElementById('statusChart').getContext('2d');
+                if (statusChart) statusChart.destroy();
+                
+                statusChart = new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Validées', 'En attente', 'Refusées'],
+                        datasets: [{
+                            data: [validees, enAttente, refusees],
+                            backgroundColor: [
+                                'rgba(39, 174, 96, 0.8)',
+                                'rgba(243, 156, 18, 0.8)',
+                                'rgba(231, 76, 60, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgba(39, 174, 96, 1)',
+                                'rgba(243, 156, 18, 1)',
+                                'rgba(231, 76, 60, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des graphiques:', error);
+            }
+        }
+
+        // Charger les utilisateurs
+        async function chargerUtilisateurs() {
+            try {
+                const { data: utilisateurs, error } = await supabase
+                    .from('utilisateurs')
+                    .select('*')
+                    .order('nom');
+                
+                if (error) throw error;
+                
+                // Récupérer les réservations pour compter le nombre de réservations par utilisateur
+                const { data: reservations, error: resError } = await supabase
+                    .from('reservations')
+                    .select('emailC, emailp');
+                
+                if (resError) throw resError;
+                
+                // Compter les réservations par utilisateur
+                const reservationsParUtilisateur = {};
+                reservations.forEach(res => {
+                    // Compter comme conducteur
+                    if (!reservationsParUtilisateur[res.emailC]) {
+                        reservationsParUtilisateur[res.emailC] = { conducteur: 0, passager: 0 };
+                    }
+                    reservationsParUtilisateur[res.emailC].conducteur++;
+                    
+                    // Compter comme passager
+                    if (res.emailp && res.emailp.length > 0) {
+                        res.emailp.forEach(email => {
+                            if (!reservationsParUtilisateur[email]) {
+                                reservationsParUtilisateur[email] = { conducteur: 0, passager: 0 };
+                            }
+                            reservationsParUtilisateur[email].passager++;
+                        });
+                    }
+                });
+                
+                // Remplir les tables
+                const allUsersTable = document.getElementById('all-users-table');
+                const conducteursTable = document.getElementById('conducteurs-table');
+                const passagersTable = document.getElementById('passagers-table');
+                
+                allUsersTable.innerHTML = '';
+                conducteursTable.innerHTML = '';
+                passagersTable.innerHTML = '';
+                
+                utilisateurs.forEach(user => {
+                    const userReservations = reservationsParUtilisateur[user.email] || { conducteur: 0, passager: 0 };
+                    const role = userReservations.conducteur > 0 ? 'Conducteur' : 'Passager';
+                    const statut = user.online ? 'En ligne' : 'Hors ligne';
+                    
+                    // Ligne pour tous les utilisateurs
+                    const allUsersRow = document.createElement('tr');
+                    allUsersRow.innerHTML = `
+                        <td>${user.prenom} ${user.nom}</td>
+                        <td>${user.email}</td>
+                        <td><span class="badge ${role === 'Conducteur' ? 'badge-info' : 'badge-success'}">${role}</span></td>
+                        <td><span class="badge ${user.online ? 'badge-success' : 'badge-warning'}">${statut}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="afficherDetailsUtilisateur('${user.id}')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="supprimerUtilisateur('${user.id}', '${user.prenom} ${user.nom}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    allUsersTable.appendChild(allUsersRow);
+                    
+                    // Ligne pour conducteurs si applicable
+                    if (userReservations.conducteur > 0) {
+                        const conducteursRow = document.createElement('tr');
+                        conducteursRow.innerHTML = `
+                            <td>${user.prenom} ${user.nom}</td>
+                            <td>${user.email}</td>
+                            <td>${userReservations.conducteur} trajet(s)</td>
+                            <td><span class="badge ${user.online ? 'badge-success' : 'badge-warning'}">${statut}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="afficherDetailsUtilisateur('${user.id}')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="supprimerUtilisateur('${user.id}', '${user.prenom} ${user.nom}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        conducteursTable.appendChild(conducteursRow);
+                    }
+                    
+                    // Ligne pour passagers si applicable
+                    if (userReservations.passager > 0) {
+                        const passagersRow = document.createElement('tr');
+                        passagersRow.innerHTML = `
+                            <td>${user.prenom} ${user.nom}</td>
+                            <td>${user.email}</td>
+                            <td>${userReservations.passager} réservation(s)</td>
+                            <td><span class="badge ${user.online ? 'badge-success' : 'badge-warning'}">${statut}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="afficherDetailsUtilisateur('${user.id}')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="supprimerUtilisateur('${user.id}', '${user.prenom} ${user.nom}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        passagersTable.appendChild(passagersRow);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des utilisateurs:', error);
+            }
+        }
+
+        // Afficher les détails d'un utilisateur
+        window.afficherDetailsUtilisateur = async function(userId) {
+            try {
+                const { data: user, error } = await supabase
+                    .from('utilisateurs')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+                
+                if (error) throw error;
+                
+                // Récupérer les réservations de l'utilisateur
+                const { data: reservationsConducteur, error: resConducteurError } = await supabase
+                    .from('reservations')
+                    .select('*')
+                    .eq('emailC', user.email);
+                
+                if (resConducteurError) throw resConducteurError;
+                
+                const { data: reservationsPassager, error: resPassagerError } = await supabase
+                    .from('reservations')
+                    .select('*');
+                
+                if (resPassagerError) throw resPassagerError;
+                
+                // Filtrer les réservations où l'utilisateur est passager
+                const reservationsCommePassager = reservationsPassager.filter(res => 
+                    res.emailp && res.emailp.includes(user.email)
+                );
+                
+                // Préparer le contenu du modal
+                const modalBody = document.getElementById('userModalBody');
+                modalBody.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Informations Personnelles</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Nom:</strong></td>
+                                    <td>${user.nom}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Prénom:</strong></td>
+                                    <td>${user.prenom}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Email:</strong></td>
+                                    <td>${user.email}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Statut:</strong></td>
+                                    <td><span class="badge ${user.online ? 'badge-success' : 'badge-warning'}">${user.online ? 'En ligne' : 'Hors ligne'}</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Statistiques</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Trajets comme conducteur:</strong></td>
+                                    <td>${reservationsConducteur.length}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Réservations comme passager:</strong></td>
+                                    <td>${reservationsCommePassager.length}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    ${user.bio_conducteur || user.bio_passager ? `
+                    <div class="mt-3">
+                        <h6>Biographie</h6>
+                        <p>${user.bio_conducteur || user.bio_passager || 'Aucune biographie disponible'}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${reservationsConducteur.length > 0 ? `
+                    <div class="mt-3">
+                        <h6>Derniers trajets comme conducteur</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Départ</th>
+                                        <th>Arrivée</th>
+                                        <th>Date</th>
+                                        <th>Prix</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${reservationsConducteur.slice(0, 5).map(res => `
+                                        <tr>
+                                            <td>${res.debut}</td>
+                                            <td>${res.fin}</td>
+                                            <td>${new Date(res.created_at).toLocaleDateString()}</td>
+                                            <td>${res.prix_reservation} MAD</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+                
+                // Afficher le modal
+                const userModal = new bootstrap.Modal(document.getElementById('userModal'));
+                userModal.show();
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des détails utilisateur:', error);
+                alert('Erreur lors du chargement des détails utilisateur');
+            }
+        }
+
+        // Supprimer un utilisateur
+        window.supprimerUtilisateur = async function(userId, nomComplet) {
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur "${nomComplet}" ? Cette action est irréversible.`)) {
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('utilisateurs')
+                    .delete()
+                    .eq('id', userId);
+                
+                if (error) throw error;
+                
+                alert('Utilisateur supprimé avec succès !');
+                chargerUtilisateurs();
+                chargerStatistiques();
+                
+            } catch (error) {
+                console.error('Erreur lors de la suppression:', error);
+                alert('Erreur lors de la suppression de l\'utilisateur');
+            }
+        }
+
+        // Charger les réservations
+        async function chargerReservations() {
+            try {
+                const { data: reservations, error } = await supabase
+                    .from('reservations')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                const reservationsTable = document.getElementById('reservations-table');
+                reservationsTable.innerHTML = '';
+                
+                reservations.forEach(res => {
+                    let statut, badgeClass;
+                    
+                    if (res.valide_conducteur) {
+                        statut = 'Validée';
+                        badgeClass = 'badge-success';
+                    } else if (res.valide_passager && !res.valide_conducteur) {
+                        statut = 'En attente';
+                        badgeClass = 'badge-warning';
+                    } else {
+                        statut = 'Refusée';
+                        badgeClass = 'badge-danger';
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${res.id}</td>
+                        <td>${res.emailC}</td>
+                        <td>${res.debut} → ${res.fin}</td>
+                        <td>${new Date(res.created_at).toLocaleDateString()}</td>
+                        <td>${res.prix_reservation} MAD</td>
+                        <td><span class="badge ${badgeClass}">${statut}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" onclick="supprimerReservation(${res.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    reservationsTable.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des réservations:', error);
+            }
+        }
+
+        // Supprimer une réservation
+        window.supprimerReservation = async function(reservationId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette réservation ? Cette action est irréversible.')) {
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('reservations')
+                    .delete()
+                    .eq('id', reservationId);
+                
+                if (error) throw error;
+                
+                alert('Réservation supprimée avec succès !');
+                chargerReservations();
+                chargerStatistiques();
+                
+            } catch (error) {
+                console.error('Erreur lors de la suppression:', error);
+                alert('Erreur lors de la suppression de la réservation');
+            }
+        }
+
+        // Initialiser le dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            chargerStatistiques();
+            chargerUtilisateurs();
+            chargerReservations();
+            
+            // Recharger les données toutes les 30 secondes
+            setInterval(() => {
+                chargerStatistiques();
+                chargerUtilisateurs();
+                chargerReservations();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

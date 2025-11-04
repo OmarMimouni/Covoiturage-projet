@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Itinéraire avec autocomplétion et trajet réel</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="mapStyle.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="form-section">
+            <div class="logo">
+                <h1>espace réservation</h1>
+                <p>Trouvez votre itinéraire optimal</p>
+            </div>
+
+            <div class="form-group">
+                <label for="start">Lieu de départ</label>
+                <input type="text" id="start" list="start-list" class="form-input" placeholder="Ex: Rabat, Maroc">
+                <datalist id="start-list"></datalist>
+            </div>
+
+            <div class="form-group">
+                <label for="end">Lieu d'arrivée</label>
+                <input type="text" id="end" list="end-list" class="form-input" placeholder="Ex: Tamesna, Maroc">
+                <datalist id="end-list"></datalist>
+            </div>
+
+            <div class="form-group">
+                <label for="typeroute">Type de véhicule:</label>
+                <select id="typeroute" class="info-value">
+                    <option value="voiture">voiture</option><!-- 4 -->
+                    <option value="Minibus">Minibus</option><!-- 8 -->
+                    <option value="Moto">Moto</option><!-- 1 -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="type_route">Type de course:</label>
+                <select id="routeType" class="info-value">
+                    <option value="Course partagée">Course partagée</option>
+                    <option value="Course privée">Course privée</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="nombre de places">nombres de paces</label>
+                <input type="number" id="nombre_de_places" class="form-input"></input>
+            </div>
+            <div class="buttons-group">
+                <button id="routeBtn" class="btn btn-primary">
+                    <span>plus d'info sur le trajet</span>
+                </button>
+                <button id="valider" onclick="valider()" href="#start" class="btn btn-secondary">
+                    <span>valider</span>
+                </button>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <div>Calcul de l'itinéraire en cours...</div>
+            </div>
+
+            <div id="routeInfo" class="route-info">
+                <div class="info-title">
+                    <span>Informations de l'itinéraire</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Distance:</span>
+                    <span id="distance" class="info-value">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Durée estimée:</span>
+                    <span id="duration" class="info-value">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Type de route:</span>
+
+                    <span id="typeroute" class="info-value">Voiture</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">prix total:</span>
+                    <span id="prixTotal" class="info-value">0.00</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">nombres de places:</span>
+                    <span id="nbrPlaces" class="info-value">Voiture</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="map-section">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+
+        const map = L.map('map').setView([48.8566, 2.3522], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        let routingControl = null;
+        let suggestionMarkers = [];
+        let startMarker = null;
+        let endMarker = null;
+
+        // Icônes personnalisées pour les marqueurs
+        const startIcon = L.divIcon({
+            className: 'custom-marker',
+            html: '<div style="background-color: #28a745; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>',
+            iconSize: [26, 26]
+        });
+
+        const endIcon = L.divIcon({
+            className: 'custom-marker',
+            html: '<div style="background-color: #dc3545; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>',
+            iconSize: [26, 26]
+        });
+
+        const suggestionIcon = L.divIcon({
+            className: 'custom-marker',
+            html: '<div style="background-color: #007bff; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></div>',
+            iconSize: [16, 16]
+        });
+
+        // Fonction pour effacer tous les marqueurs de suggestions
+        function clearSuggestionMarkers() {
+            suggestionMarkers.forEach(marker => map.removeLayer(marker));
+            suggestionMarkers = [];
+        }
+
+        // Fonction pour afficher/masquer le loading
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('show', show);
+        }
+
+        // Fonction pour afficher les informations d'itinéraire
+
+        function showRouteInfo(distance, duration) {
+            const routeInfo = document.getElementById('routeInfo');
+
+            // Afficher la distance et la durée
+            document.getElementById('distance').textContent = distance;
+            document.getElementById('duration').textContent = duration;
+
+            // Récupération du type de véhicule choisi
+            const typeVehicule = document.getElementById("typeroute").value;
+            document.querySelector("#routeInfo #typeroute").textContent = typeVehicule;
+
+
+            // Conversion de la distance (ex: "12.5 km" → 12.5)
+            const distanceValue = parseFloat(distance.replace(" km", "").replace(",", "."));
+
+            // Calcul du prix total
+            const prixTotal = (distanceValue * 5) + " MAD"; //5DH POUR KM HHH
+
+            // Affichage du prix total
+            document.getElementById("prixTotal").textContent = prixTotal;
+
+
+            // Récupération du nombre de places
+            const nbPlaces = parseInt(document.getElementById("nombre_de_places").value);
+
+            // Extraction du montant numérique du prix total ("250.00 MAD" → 250.00)
+            const prixTotalNum = parseFloat(prixTotal.replace(" MAD", ""));
+
+            // Calcul du prix par personne
+            const prixParPersonne = (prixTotalNum / nbPlaces).toFixed(2);
+
+            // Construction du texte final
+            const nombreDePlaces = `${nbPlaces} places (${prixParPersonne} MAD / pers)`;
+
+            // Affichage
+            document.getElementById("nbrPlaces").textContent = nombreDePlaces;
+
+            // Afficher le bloc d'informations
+            routeInfo.classList.add('show');
+
+
+        }
+
+        // Fonction pour ajouter un marqueur sur la carte
+        function addMarker(lat, lng, title, isStart = false, isEnd = false) {
+            let marker;
+
+            if (isStart) {
+                if (startMarker) map.removeLayer(startMarker);
+                marker = L.marker([lat, lng], { icon: startIcon })
+                    .addTo(map)
+                    .bindPopup(`<b> Départ:</b> ${title}`);
+                startMarker = marker;
+            } else if (isEnd) {
+                if (endMarker) map.removeLayer(endMarker);
+                marker = L.marker([lat, lng], { icon: endIcon })
+                    .addTo(map)
+                    .bindPopup(`<b> Arrivée:</b> ${title}`);
+                endMarker = marker;
+            } else {
+                marker = L.marker([lat, lng], { icon: suggestionIcon })
+                    .addTo(map)
+                    .bindPopup(`<b> Suggestion:</b> ${title}`);
+                suggestionMarkers.push(marker);
+            }
+
+            return marker;
+        }
+        // Autocomplétion avec Photon et affichage sur la carte
+        async function fetchSuggestions(inputId, listId, isStartField = false) {
+            const input = document.getElementById(inputId);
+            const datalist = document.getElementById(listId);
+
+            input.addEventListener('input', async () => {
+                const value = input.value;
+                if (value.length < 3) {
+                    clearSuggestionMarkers();
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(value)}&limit=5`);
+                    const data = await res.json();
+
+                    datalist.innerHTML = '';
+                    clearSuggestionMarkers();
+
+                    data.features.forEach(feature => {
+                        const option = document.createElement('option');
+                        let displayName = feature.properties.name || '';
+                        if (feature.properties.city) displayName += ', ' + feature.properties.city;
+                        if (feature.properties.country) displayName += ', ' + feature.properties.country;
+                        option.value = displayName;
+                        option.setAttribute('data-lat', feature.geometry.coordinates[1]);
+                        option.setAttribute('data-lng', feature.geometry.coordinates[0]);
+                        datalist.appendChild(option);
+
+                        // Ajoute un marqueur pour cette suggestion
+                        const marker = addMarker(
+                            feature.geometry.coordinates[1],
+                            feature.geometry.coordinates[0],
+                            displayName
+                        );
+
+                        // Si l'utilisateur clique sur un marqueur de suggestion, remplit le champ correspondant
+                        marker.on('click', () => {
+                            input.value = displayName;
+                            if (isStartField) {
+                                addMarker(feature.geometry.coordinates[1], feature.geometry.coordinates[0], displayName, true, false);
+                            } else {
+                                addMarker(feature.geometry.coordinates[1], feature.geometry.coordinates[0], displayName, false, true);
+                            }
+                            clearSuggestionMarkers();
+                        });
+                    });
+                } catch (error) {
+                    console.error('Erreur lors de la récupération des suggestions:', error);
+                }
+            });
+
+            // Quand l'utilisateur sélectionne une option depuis la liste déroulante
+            input.addEventListener('change', () => {
+                const selectedOption = Array.from(datalist.options).find(opt => opt.value === input.value);
+                if (selectedOption) {
+                    const lat = selectedOption.getAttribute('data-lat');
+                    const lng = selectedOption.getAttribute('data-lng');
+                    if (lat && lng) {
+                        if (isStartField) {
+                            addMarker(lat, lng, input.value, true, false);
+                        } else {
+                            addMarker(lat, lng, input.value, false, true);
+                        }
+                        clearSuggestionMarkers();
+                        map.setView([lat, lng], 13);
+                    }
+                }
+            });
+        }
+
+        fetchSuggestions('start', 'start-list', true);
+        fetchSuggestions('end', 'end-list', false);
+
+        // Géocodage
+        async function geocode(address) {
+            try {
+                const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(address)}&limit=1`);
+                const data = await res.json();
+                if (data.features && data.features.length > 0) {
+                    const feature = data.features[0];
+                    return {
+                        coords: [feature.geometry.coordinates[1], feature.geometry.coordinates[0]],
+                        name: feature.properties.name || address
+                    };
+                } else {
+                    alert("Adresse non trouvée : " + address);
+                    return null;
+                }
+            } catch (error) {
+                console.error('Erreur de géocodage:', error);
+                alert("Erreur lors du géocodage de l'adresse: " + address);
+                return null;
+            }
+        }
+
+        // Calcul de l'itinéraire avec OSRM
+        document.getElementById('routeBtn').addEventListener('click', async () => {
+            const startAddr = document.getElementById('start').value;
+            const endAddr = document.getElementById('end').value;
+
+            if (!startAddr || !endAddr) {
+                alert("Veuillez saisir le lieu de départ et d'arrivée");
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const startData = await geocode(startAddr);
+                const endData = await geocode(endAddr);
+
+                if (!startData || !endData) {
+                    showLoading(false);
+                    return;
+                }
+
+                // Ajouter les marqueurs définitifs
+                addMarker(startData.coords[0], startData.coords[1], startData.name, true, false);
+                addMarker(endData.coords[0], endData.coords[1], endData.name, false, true);
+
+                // Supprimer l'ancien itinéraire s'il existe
+                if (routingControl) {
+                    map.removeControl(routingControl);
+                }
+
+                // Créer le nouvel itinéraire avec OSRM
+                routingControl = L.Routing.control({
+                    waypoints: [
+                        L.latLng(startData.coords[0], startData.coords[1]),
+                        L.latLng(endData.coords[0], endData.coords[1])
+                    ],
+                    router: L.Routing.osrmv1({
+                        serviceUrl: 'https://router.project-osrm.org/route/v1',
+                        profile: 'driving',
+                        useHints: false
+                    }),
+                    lineOptions: {
+                        styles: [
+                            {
+                                color: '#007bff',
+                                opacity: 0.8,
+                                weight: 6
+                            }
+                        ],
+                        missingRouteTolerance: 0
+                    },
+                    routeWhileDragging: false,
+                    showAlternatives: false,
+                    addWaypoints: false,
+                    draggableWaypoints: false,
+                    fitSelectedRoutes: true,
+                    show: false, // Cache le panneau d'instructions
+                    createMarker: function () { return null; } // Désactive les marqueurs automatiques
+                }).addTo(map);
+
+                // Événement lorsque l'itinéraire est trouvé
+                routingControl.on('routesfound', function (e) {
+                    showLoading(false);
+                    const routes = e.routes;
+                    const summary = routes[0].summary;
+
+                    // Formater les informations
+                    const distance = (summary.totalDistance / 1000).toFixed(1) + ' km';
+                    const time = Math.round(summary.totalTime / 60) + ' min';
+
+                    showRouteInfo(distance, time);
+
+                    // Ajuster la vue pour montrer l'itinéraire complet
+                    const bounds = L.latLngBounds([startData.coords, endData.coords]);
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                });
+
+                // Événement en cas d'erreur
+                routingControl.on('routingerror', function (e) {
+                    showLoading(false);
+                    alert("Erreur lors du calcul de l'itinéraire. Veuillez réessayer avec des points différents.");
+                    console.error('Erreur de routage:', e.error);
+                });
+
+                clearSuggestionMarkers();
+
+            } catch (error) {
+                showLoading(false);
+                console.error('Erreur générale:', error);
+                alert("Une erreur est survenue lors du calcul de l'itinéraire.");
+            }
+        });
+
+        //--------------------------------------------------------------------------------------------------------------------
+
+
+
+    </script>
+
+    <script>
+        //script pour gerer les buttons
+        const btnPlusInfo = document.getElementById("routeBtn"); // <-- bon ID
+        const btnValider = document.getElementById("valider");
+
+        // Masquer le bouton valider au départ
+        btnValider.style.display = "none";
+
+        if (btnPlusInfo && btnValider) {
+            btnPlusInfo.addEventListener("click", () => {
+                // Affiche le bouton Valider
+                btnValider.style.display = "flex"; // ou "block"
+            });
+        }
+
+        // Gestion nombre de places si course privée
+        const routeType = document.getElementById("routeType");
+        const nombrePlaces = document.getElementById("nombre_de_places");
+
+        if (routeType && nombrePlaces) {
+            routeType.addEventListener("change", () => {
+                if (routeType.value === "Course privée") {
+                    nombrePlaces.value = 1;
+                    nombrePlaces.disabled = true;
+                } else {
+                    nombrePlaces.disabled = false;
+                }
+            });
+
+            // Vérifie au chargement si c'est déjà privé
+            if (routeType.value === "Course privée") {
+                nombrePlaces.value = 1;
+                nombrePlaces.disabled = true;
+            }
+        }
+    </script>
+
+    <script type="module">
+
+
+
+        import { createClient } from "https://esm.sh/@supabase/supabase-js"
+        const SUPABASE_URL = "https://krxosvsxazhdahyaecin.supabase.co"
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtyeG9zdnN4YXpoZGFoeWFlY2luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1ODUzNzYsImV4cCI6MjA3NzE2MTM3Nn0.jEk8UPTRAje8BNw2oapXeobG4HNglEZ5x6zzccOiG08"
+
+
+        document.getElementById("valider").addEventListener("click", async () => {
+            const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+            const start = document.getElementById('start').value;
+            const end = document.getElementById('end').value;
+            const distance = document.getElementById('distance').textContent;
+            const typeVehicule = document.getElementById('typeroute').value;
+            const routeType = document.getElementById('routeType').value;
+            const nbPlaces = parseInt(document.getElementById('nombre_de_places').value);
+            const prixTotal = document.getElementById('prixTotal').textContent;
+
+            if (!start || !end) {
+                alert("Veuillez remplir le départ et l'arrivée !");
+                return;
+            }
+
+            let distanceNum = parseFloat(distance.replace(" km", "").replace(",", "."));
+            let prixTotalNum = parseFloat(prixTotal.replace(" MAD", "").replace(",", "."));
+
+            //ici je récupère mon email
+
+            const {
+                data: { user },
+                error: userError
+            } = await supabase.auth.getUser();
+
+            if (userError) {
+                alert("Erreur lors de la récupération de l'utilisateur : " + userError.message);
+                return;
+            }
+
+            if (!user) {
+                alert("Aucun utilisateur connecté !");
+                return;
+            }
+
+            const email = user.email; // ← l'email connecté récupéré automatiquement
+            console.log("Utilisateur connecté :", email);
+
+            const { data, error } = await supabase
+                .from("reservations")
+                .insert([{
+                    "emailC": email,
+                    "debut": start,
+                    "fin": end,
+                    "kilometres": distanceNum,
+                    "valide_passager": false,//la reservation n'est pas comfirmée par
+                    "valide_conducteur": false,
+                    "prix_reservation": prixTotalNum,
+                    "typeVehicule": typeVehicule,
+                    "Type_de_course": routeType,
+                    "nombres_de_paces": nbPlaces,
+                    "emailp": [],
+                    "places_reserves" :null
+                }]);
+
+            if (error) {
+                alert("Erreur: " + error.message);
+            } else {
+                alert("Réservation effectuée avec succès !");
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - CMC-RIDES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .profile-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00d4ff, #0052d4);
+        }
+
+        .photo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-photo {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #00d4ff;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .change-photo-btn {
+            background: linear-gradient(90deg, #00d4ff, #0052d4);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .change-photo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .info-section {
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .info-item {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-label i {
+            margin-right: 8px;
+            color: #00d4ff;
+        }
+
+        .info-value {
+            background: #f8f9fa;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .info-value.editing {
+            background: white;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .info-value:read-only {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+        }
+
+        .edit-btn {
+            background: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .edit-btn:hover {
+            background: #636e72;
+            transform: translateY(-2px);
+        }
+
+        .save-btn {
+            background: linear-gradient(90deg, #00b09b, #96c93d);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            margin-right: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 176, 155, 0.3);
+        }
+
+        .cancel-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .cancel-btn:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .reservations-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reservation-item {
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #fafafa;
+            transition: all 0.3s ease;
+        }
+
+        .reservation-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .reservation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .reservation-type {
+            background: linear-gradient(90deg, #00d4ff, #0052d4);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .reservation-date {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .reservation-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+
+        .detail-item {
+            margin-bottom: 5px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .back-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(90deg, #636e72, #2d3436);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #e74c3c;
+        }
+
+        .no-reservations {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .edit-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-reservations {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-reservations:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .collapsed {
+            display: none;
+        }
+
+        .expanded {
+            display: block;
+        }
+
+        .reservations-container {
+            overflow: hidden;
+        }
+
+        .reservation-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .reservation-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .reservation-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .edit-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mon Profil</h1>
+            <p>Gérez vos informations et consultez votre historique !</p>
+        </div>
+
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p style="margin-top: 15px;">Chargement du profil...</p>
+        </div>
+
+        <div id="error" class="error hidden">
+            <i class="fas fa-exclamation-triangle fa-2x"></i>
+            <p id="error-message" style="margin-top: 15px;">Erreur lors du chargement</p>
+            <button onclick="loadProfile()" style="margin-top: 15px; padding: 10px 20px; background: #00d4ff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                <i class="fas fa-redo"></i> Réessayer
+            </button>
+        </div>
+
+        <div id="profileSection" class="hidden">
+            <!-- Section Informations Personnelles -->
+            <div class="profile-section">
+                <!-- Section Photo -->
+                <div class="photo-section">
+                    <img id="profilePhoto" class="profile-photo" src="" alt="Photo de profil">
+                    <br>
+                    <button class="change-photo-btn" onclick="changePhoto()">
+                        <i class="fas fa-camera"></i> Changer la photo
+                    </button>
+                    <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="handlePhotoChange(event)">
+                </div>
+
+                <!-- Informations Modifiables -->
+                <div class="info-section">
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-user"></i> Nom</div>
+                        <input type="text" id="infoNom" class="info-value" readonly>
+                        <div class="edit-buttons hidden" id="editButtons-infoNom">
+
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-user"></i> Prénom</div>
+                        <input type="text" id="infoPrenom" class="info-value" readonly>
+                        <div class="edit-buttons hidden" id="editButtons-infoPrenom">
+
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-envelope"></i> Email</div>
+                        <input type="email" id="infoEmail" class="info-value" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Historique des Réservations -->
+            <div class="reservations-section">
+                <div class="section-title">
+                    <i class="fas fa-history"></i> Historique des Réservations
+                </div>
+                <div id="reservationsList" class="reservations-container">
+                    <!-- Les réservations seront chargées ici -->
+                </div>
+                <button id="toggleReservations" class="toggle-reservations hidden">
+                    <i class="fas fa-chevron-down"></i> Voir plus
+                </button>
+            </div>
+
+            <a href="/PassagerHome.html" class="back-btn">
+                <i class="fas fa-home"></i> Retour à l'accueil
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js"
+        
+        const SUPABASE_URL = "https://krxosvsxazhdahyaecin.supabase.co"
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtyeG9zdnN4YXpoZGFoeWFlY2luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1ODUzNzYsImV4cCI6MjA3NzE2MTM3Nn0.jEk8UPTRAje8BNw2oapXeobG4HNglEZ5x6zzccOiG08"
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+        // DOM Elements
+        const loadingEl = document.getElementById('loading')
+        const errorEl = document.getElementById('error')
+        const profileSection = document.getElementById('profileSection')
+        const reservationsList = document.getElementById('reservationsList')
+        const toggleReservationsBtn = document.getElementById('toggleReservations')
+
+        let currentUserEmail = ''
+        let originalValues = {}
+        let allReservations = []
+        let isExpanded = false
+        let userRole = '' // Pour déterminer si l'utilisateur est conducteur ou passager
+
+        async function loadProfile() {
+            try {
+                showLoading()
+                
+                // Get current session
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+                
+                if (sessionError) throw sessionError
+                if (!session) {
+                    throw new Error('Utilisateur non connecté')
+                }
+
+                currentUserEmail = session.user.email
+
+                // Essayer de récupérer d'abord depuis la table conducteurs
+                let { data: userData, error: userError } = await supabase
+                    .from('conducteurs')
+                    .select('*')
+                    .eq('email', currentUserEmail)
+                    .single()
+
+                if (userError && userError.code !== 'PGRST116') {
+                    throw userError
+                }
+
+                // Si pas trouvé dans conducteurs, chercher dans utilisateurs
+                if (!userData) {
+                    const { data: utilisateurData, error: utilisateurError } = await supabase
+                        .from('utilisateurs')
+                        .select('*')
+                        .eq('email', currentUserEmail)
+                        .single()
+
+                    if (utilisateurError) throw utilisateurError
+                    if (!utilisateurData) {
+                        throw new Error('Profil utilisateur non trouvé')
+                    }
+
+                    userData = utilisateurData
+                    userRole = 'passager'
+                } else {
+                    userRole = 'conducteur'
+                }
+
+                // Display user data
+                displayProfile(userData)
+                
+                // Load reservations
+                await loadReservations()
+                
+                showProfile()
+
+            } catch (error) {
+                console.error('Error loading profile:', error)
+                showError(error.message)
+            }
+        }
+
+        function displayProfile(userData) {
+            // Basic info
+            document.getElementById('infoNom').value = userData.nom || ''
+            document.getElementById('infoPrenom').value = userData.prenom || ''
+            document.getElementById('infoEmail').value = userData.email || ''
+
+            // Store original values
+            originalValues.infoNom = userData.nom || ''
+            originalValues.infoPrenom = userData.prenom || ''
+
+            // Profile image
+            const profilePhoto = document.getElementById('profilePhoto')
+            if (userData.photo_conducteur) {
+                profilePhoto.src = userData.photo_conducteur
+            } else if (userData.photo_passager) {
+                profilePhoto.src = userData.photo_passager
+            } else {
+                // Default avatar
+                profilePhoto.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik02MCA3MEM3My4yNTQ4IDcwIDg0IDU5LjI1NDggODQgNDZDODQgMzIuNzQ1MiA3My4yNTQ4IDIyIDYwIDIyQzQ2Ljc0NTIgMjIgMzYgMzIuNzQ1MiAzNiA0NkMzNiA1OS4yNTQ4IDQ2Ljc0NTIgNzAgNjAgNzBaTTYwIDc2QzQ0LjY4NjMgNzYgMzIgODguNjg2MyAzMiAxMDRWMTA4QzMyIDEwOS4xMDUgMzIuODk1NCAxMTAgMzQgMTEwSDg2Qzg3LjEwNDYgMTEwIDg4IDEwOS4xMDUgODggMTA4VjEwNEM4OCA4OC42ODYzIDc1LjMxMzcgNzYgNjAgNzZaIiBmaWxsPSIjNjY2NjY2Ii8+Cjwvc3ZnPg=='
+            }
+        }
+
+        async function loadReservations() {
+            try {
+                // Récupérer les réservations où l'utilisateur est conducteur ou passager
+                const { data: reservations, error } = await supabase
+                    .from('reservations')
+                    .select('*')
+                    .or(`emailC.eq.${currentUserEmail},emailp.cs.{${currentUserEmail}})`)
+                    .order('created_at', { ascending: false })
+
+                if (error) {
+                    console.error('Supabase error:', error)
+                    throw error
+                }
+
+                allReservations = reservations || []
+                displayReservations(allReservations)
+
+            } catch (error) {
+                console.error('Error loading reservations:', error)
+                reservationsList.innerHTML = '<div class="error">Erreur lors du chargement des réservations</div>'
+            }
+        }
+
+        function displayReservations(reservations) {
+            if (reservations.length === 0) {
+                reservationsList.innerHTML = '<div class="no-reservations">Aucune réservation trouvée</div>'
+                toggleReservationsBtn.classList.add('hidden')
+                return
+            }
+
+            // Afficher seulement les 3 premières réservations initialement
+            const initialCount = Math.min(3, reservations.length)
+            const hasMore = reservations.length > initialCount
+            
+            if (hasMore) {
+                toggleReservationsBtn.classList.remove('hidden')
+                updateToggleButtonText()
+            } else {
+                toggleReservationsBtn.classList.add('hidden')
+            }
+
+            reservationsList.innerHTML = reservations.map((reservation, index) => `
+                <div class="reservation-item ${index >= initialCount && !isExpanded ? 'collapsed' : 'expanded'}">
+                    <div class="reservation-header">
+                        <div class="reservation-type">
+                            ${reservation.emailC === currentUserEmail ? 'Conducteur' : 'Passager'}
+                        </div>
+                        <div class="reservation-date">
+                            ${new Date(reservation.created_at).toLocaleDateString('fr-FR')}
+                        </div>
+                    </div>
+                    <div class="reservation-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Trajet:</span> ${reservation.debut} → ${reservation.fin}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Distance:</span> ${reservation.kilometres} km
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Prix:</span> ${reservation.prix_reservation} €
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type:</span> ${reservation.Type_de_course || 'Non spécifié'}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Véhicule:</span> ${reservation.typeVehicule || 'Non spécifié'}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Places:</span> ${reservation.nombres_de_paces || 'Non spécifié'}
+                        </div>
+                    </div>
+                    <div class="reservation-actions">
+                        <span class="status-badge ${getStatusClass(reservation)}">
+                            ${getStatusText(reservation)}
+                        </span>
+                    </div>
+                </div>
+            `).join('')
+        }
+
+        function toggleReservations() {
+            isExpanded = !isExpanded
+            updateToggleButtonText()
+            
+            const reservationItems = document.querySelectorAll('.reservation-item')
+            reservationItems.forEach((item, index) => {
+                if (isExpanded) {
+                    item.classList.remove('collapsed')
+                    item.classList.add('expanded')
+                } else {
+                    // Garder les 3 premiers visibles, masquer les autres
+                    if (index >= 3) {
+                        item.classList.remove('expanded')
+                        item.classList.add('collapsed')
+                    }
+                }
+            })
+        }
+
+        function updateToggleButtonText() {
+            const icon = toggleReservationsBtn.querySelector('i')
+            if (isExpanded) {
+                toggleReservationsBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Voir moins'
+            } else {
+                toggleReservationsBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Voir plus'
+            }
+        }
+
+        function getStatusClass(reservation) {
+            if (reservation.emailC === currentUserEmail) {
+                return reservation.valide_conducteur ? 'status-confirmed' : 'status-pending'
+            } else {
+                return reservation.valide_passager ? 'status-confirmed' : 'status-pending'
+            }
+        }
+
+        function getStatusText(reservation) {
+            if (reservation.emailC === currentUserEmail) {
+                return reservation.valide_conducteur ? 'Confirmé' : 'En attente'
+            } else {
+                return reservation.valide_passager ? 'Confirmé' : 'En attente'
+            }
+        }
+
+        // Photo management
+        function changePhoto() {
+            document.getElementById('photoInput').click()
+        }
+
+        async function handlePhotoChange(event) {
+            const file = event.target.files[0]
+            if (!file) return
+
+            try {
+                // Upload new photo
+                const photoUrl = await uploadFile(file, 'profile_photo')
+                
+                // Update profile photo display
+                document.getElementById('profilePhoto').src = photoUrl
+                
+                // Update in database - selon la table appropriée
+                await updateUserPhoto(photoUrl)
+                
+                alert('Photo mise à jour avec succès!')
+                
+            } catch (error) {
+                console.error('Error updating photo:', error)
+                alert('Erreur lors du changement de photo: ' + error.message)
+            }
+        }
+
+        // Field editing functions
+        function enableEdit(fieldId) {
+            const field = document.getElementById(fieldId)
+            const editButton = field.nextElementSibling
+            const editButtons = document.getElementById(`editButtons-${fieldId}`)
+            
+            // Store original value
+            originalValues[fieldId] = field.value
+            
+            // Enable editing
+            field.readOnly = false
+            field.classList.add('editing')
+            
+            // Hide edit button, show save/cancel buttons
+            editButton.classList.add('hidden')
+            editButtons.classList.remove('hidden')
+            
+            // Focus on field
+            field.focus()
+        }
+
+        function cancelEdit(fieldId) {
+            const field = document.getElementById(fieldId)
+            const editButton = field.nextElementSibling
+            const editButtons = document.getElementById(`editButtons-${fieldId}`)
+            
+            // Restore original value
+            field.value = originalValues[fieldId]
+            
+            // Disable editing
+            field.readOnly = true
+            field.classList.remove('editing')
+            
+            // Show edit button, hide save/cancel buttons
+            editButton.classList.remove('hidden')
+            editButtons.classList.add('hidden')
+        }
+
+        async function saveField(fieldId, fieldName) {
+            const field = document.getElementById(fieldId)
+            const newValue = field.value.trim()
+            const editButton = field.nextElementSibling
+            const editButtons = document.getElementById(`editButtons-${fieldId}`)
+
+            if (!newValue) {
+                alert('Ce champ ne peut pas être vide')
+                field.focus()
+                return
+            }
+
+            try {
+                let error;
+                
+                // Mettre à jour dans la table appropriée
+                if (userRole === 'conducteur') {
+                    const { error: updateError } = await supabase
+                        .from('conducteurs')
+                        .update({ [fieldName]: newValue })
+                        .eq('email', currentUserEmail)
+                    error = updateError
+                } else {
+                    const { error: updateError } = await supabase
+                        .from('utilisateurs')
+                        .update({ [fieldName]: newValue })
+                        .eq('email', currentUserEmail)
+                    error = updateError
+                }
+
+                if (error) throw error
+
+                // Success - update original value and reset field
+                originalValues[fieldId] = newValue
+                field.readOnly = true
+                field.classList.remove('editing')
+                editButtons.classList.add('hidden')
+                editButton.classList.remove('hidden')
+
+                alert('Modification enregistrée avec succès!')
+
+            } catch (error) {
+                console.error('Error updating field:', error)
+                alert('Erreur lors de la modification: ' + error.message)
+                // Restore original value on error
+                cancelEdit(fieldId)
+            }
+        }
+
+        async function uploadFile(file, fileType) {
+            const cleanFileName = file.name
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9.-]/g, '_')
+                .toLowerCase()
+
+            const fileName = `${fileType}_${Date.now()}_${cleanFileName}`
+
+            const { data, error } = await supabase.storage
+                .from('photos_utilisateurs')
+                .upload(fileName, file)
+
+            if (error) throw error
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('photos_utilisateurs')
+                .getPublicUrl(fileName)
+
+            return publicUrl
+        }
+
+        async function updateUserPhoto(photoUrl) {
+            let error;
+            
+            // Mettre à jour dans la table appropriée
+            if (userRole === 'conducteur') {
+                const { error: updateError } = await supabase
+                    .from('conducteurs')
+                    .update({ 
+                        photo_conducteur: photoUrl
+                    })
+                    .eq('email', currentUserEmail)
+                error = updateError
+            } else {
+                const { error: updateError } = await supabase
+                    .from('utilisateurs')
+                    .update({ 
+                        photo_passager: photoUrl 
+                    })
+                    .eq('email', currentUserEmail)
+                error = updateError
+            }
+
+            if (error) throw error
+        }
+
+        function showLoading() {
+            loadingEl.classList.remove('hidden')
+            errorEl.classList.add('hidden')
+            profileSection.classList.add('hidden')
+        }
+
+        function showProfile() {
+            loadingEl.classList.add('hidden')
+            errorEl.classList.add('hidden')
+            profileSection.classList.remove('hidden')
+        }
+
+        function showError(message) {
+            loadingEl.classList.add('hidden')
+            errorEl.classList.remove('hidden')
+            profileSection.classList.add('hidden')
+            document.getElementById('error-message').textContent = message
+        }
+
+        // Load profile when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile()
+            toggleReservationsBtn.addEventListener('click', toggleReservations)
+        })
+    </script>
+</body>
+
+</html>
