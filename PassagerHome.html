@@ -215,7 +215,7 @@
         <ul class="nav-links">
             <li><a href="/index.html">informations</a></li>
             <li><a href="#reservation">réserver</a></li>
-            <li><a href="/profile.html">Profil</a></li>
+            <li><a window.location.href="profile.html">Profil</a></li>
             <li class="A nav-item d-flex align-items-center">
                 <!-- Passager Icon -->
 
@@ -241,11 +241,11 @@
                 modeSwitch.addEventListener('change', () => {
                     if (modeSwitch.checked) {
                         // Conducteur activé
-                        window.location.href = "/ConducteurHome.html";
+                        window.location.href = "ConducteurHome.html";
 
                     } else {
                         // Passager activé
-                        window.location.href = "/PassagerHome.html";
+                        window.location.href = "PassagerHome.html";
                     }
                 });
             });

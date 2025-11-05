@@ -239,9 +239,8 @@
         </form>
 
         <div class="links">
-            <a href="/inscription.html">Je ne suis pas inscrit !</a>
-            <a href="/index.html">Retour à l'accueil</a>
-        </div>
+            <a href="inscription.html">Je ne suis pas inscrit !</a>
+            <a href="index.html">Retour à l'accu
     </div>
 
     <script type="module">
@@ -271,7 +270,7 @@
                 if (email === "admin@gmail.com" && mdp === "123") {
                     // Redirection directe vers la page admin
                     setTimeout(() => {
-                        window.location.href = "/admin.html";
+                        window.location.href = "admin.html";
                     }, 500);
                     return;
                 }
@@ -287,7 +286,7 @@
 
                 // Redirection vers la page d'accueil passager après connexion réussie
                 setTimeout(() => {
-                    window.location.href = "/PassagerHome.html";
+                    window.location.href = "PassagerHome.html";
                 }, 500);
 
             } catch (error) {
