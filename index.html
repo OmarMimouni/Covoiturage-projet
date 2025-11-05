@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMC-RIDES - Covoiturage Nouvelle Génération</title>
+    <link rel="icon" href="image 1.svg" type="image/x-icon">
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -423,7 +425,14 @@
         }
     </style>
 </head>
-
+<script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.onkeydown = function (e) {
+        if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0))) {
+            return false;
+        }
+    };
+</script>
 <body>
     <!-- Navigation -->
     <nav id="navbar">

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" href="image 1.svg" type="image/x-icon">
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0))) {
+                return false;
+            }
+        };
+    </script>
     <style>
         :root {
             --primary: #2c3e50;
@@ -258,14 +268,27 @@
             .nav-links {
                 gap: 1.5rem;
             }
-            
+
             .main-content {
                 margin-top: 120px;
                 padding: 1rem;
             }
         }
+
+        .nav-links .btn {
+            margin-top: -5px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .nav-links .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+        }
     </style>
 </head>
+
 <body>
     <nav id="navbar">
         <div class="logo">
@@ -276,6 +299,11 @@
             <li><a href="#statistiques">Statistiques</a></li>
             <li><a href="#utilisateurs">Utilisateurs</a></li>
             <li><a href="#reservations">Réservations</a></li>
+            <li>
+                <button class="btn btn-outline-danger btn-sm" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i> Déconnexion
+                </button>
+            </li>
         </ul>
     </nav>
 
@@ -283,7 +311,7 @@
         <!-- Section Statistiques -->
         <section id="statistiques">
             <h2 class="section-title">Tableau de Bord - Statistiques</h2>
-            
+
             <div class="row">
                 <!-- Cartes de statistiques -->
                 <div class="col-md-3">
@@ -311,12 +339,12 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="row mt-4">
                 <!-- Graphiques -->
                 <div class="col-md-6">
                     <div class="card">
-                        <div class="card-header">Réservations par Mois</div>
+                        <div class="card-header">Réservations par Jour (7 derniers jours)</div>
                         <div class="card-body">
                             <div class="chart-container">
                                 <canvas id="reservationsChart"></canvas>
@@ -340,19 +368,22 @@
         <!-- Section Utilisateurs -->
         <section id="utilisateurs" class="mt-5">
             <h2 class="section-title">Gestion des Utilisateurs</h2>
-            
+
             <ul class="nav nav-tabs" id="userTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="all-users-tab" data-bs-toggle="tab" data-bs-target="#all-users" type="button" role="tab">Tous les Utilisateurs</button>
+                    <button class="nav-link active" id="all-users-tab" data-bs-toggle="tab" data-bs-target="#all-users"
+                        type="button" role="tab">Tous les Utilisateurs</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="conducteurs-tab" data-bs-toggle="tab" data-bs-target="#conducteurs" type="button" role="tab">Conducteurs</button>
+                    <button class="nav-link" id="conducteurs-tab" data-bs-toggle="tab" data-bs-target="#conducteurs"
+                        type="button" role="tab">Conducteurs</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="passagers-tab" data-bs-toggle="tab" data-bs-target="#passagers" type="button" role="tab">Passagers</button>
+                    <button class="nav-link" id="passagers-tab" data-bs-toggle="tab" data-bs-target="#passagers"
+                        type="button" role="tab">Passagers</button>
                 </li>
             </ul>
-            
+
             <div class="tab-content" id="userTabsContent">
                 <!-- Tous les utilisateurs -->
                 <div class="tab-pane fade show active" id="all-users" role="tabpanel">
@@ -373,7 +404,7 @@
                         </table>
                     </div>
                 </div>
-                
+
                 <!-- Conducteurs -->
                 <div class="tab-pane fade" id="conducteurs" role="tabpanel">
                     <div class="table-container">
@@ -393,7 +424,7 @@
                         </table>
                     </div>
                 </div>
-                
+
                 <!-- Passagers -->
                 <div class="tab-pane fade" id="passagers" role="tabpanel">
                     <div class="table-container">
@@ -419,7 +450,7 @@
         <!-- Section Réservations -->
         <section id="reservations" class="mt-5">
             <h2 class="section-title">Gestion des Réservations</h2>
-            
+
             <div class="table-container">
                 <table class="table">
                     <thead>
@@ -462,13 +493,31 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js";
-        
+
         const SUPABASE_URL = "https://krxosvsxazhdahyaecin.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtyeG9zdnN4YXpoZGFoeWFlY2luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1ODUzNzYsImV4cCI6MjA3NzE2MTM3Nn0.jEk8UPTRAje8BNw2oapXeobG4HNglEZ5x6zzccOiG08";
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // Variables globales pour les graphiques
         let reservationsChart, statusChart;
+
+        // Fonction de déconnexion
+        window.logout = async function () {
+            try {
+                // Déconnexion avec Supabase Auth
+                const { error } = await supabase.auth.signOut();
+
+                if (error) throw error;
+
+                // Redirection vers la page de connexion
+                window.location.href = '/connexion.html';
+
+            } catch (error) {
+                console.error('Erreur lors de la déconnexion:', error);
+                // Redirection vers la page de connexion même en cas d'erreur
+                window.location.href = '/connexion.html';
+            }
+        }
 
         // Charger les statistiques
         async function chargerStatistiques() {
@@ -477,43 +526,43 @@
                 const { count: totalReservations, error: reservationsError } = await supabase
                     .from('reservations')
                     .select('*', { count: 'exact', head: true });
-                
+
                 if (reservationsError) throw reservationsError;
-                
+
                 // Récupérer le nombre total d'utilisateurs
                 const { count: totalUtilisateurs, error: usersError } = await supabase
                     .from('utilisateurs')
                     .select('*', { count: 'exact', head: true });
-                
+
                 if (usersError) throw usersError;
-                
+
                 // Récupérer les réservations validées
                 const { count: reservationsValidees, error: valideesError } = await supabase
                     .from('reservations')
                     .select('*', { count: 'exact', head: true })
                     .eq('valide_conducteur', true);
-                
+
                 if (valideesError) throw valideesError;
-                
+
                 // Calculer le revenu total
                 const { data: reservationsRevenu, error: revenuError } = await supabase
                     .from('reservations')
                     .select('prix_reservation')
                     .eq('valide_conducteur', true);
-                
+
                 if (revenuError) throw revenuError;
-                
+
                 const revenuTotal = reservationsRevenu.reduce((total, res) => total + res.prix_reservation, 0);
-                
+
                 // Mettre à jour les statistiques
                 document.getElementById('total-reservations').textContent = totalReservations;
                 document.getElementById('total-utilisateurs').textContent = totalUtilisateurs;
                 document.getElementById('reservations-validees').textContent = reservationsValidees;
                 document.getElementById('revenu-total').textContent = `${revenuTotal.toFixed(2)} MAD`;
-                
+
                 // Charger les graphiques
                 chargerGraphiques();
-                
+
             } catch (error) {
                 console.error('Erreur lors du chargement des statistiques:', error);
             }
@@ -522,44 +571,61 @@
         // Charger les graphiques
         async function chargerGraphiques() {
             try {
-                // Récupérer les réservations par mois
+                // Récupérer les réservations des 7 derniers jours
+                const dateLimite = new Date();
+                dateLimite.setDate(dateLimite.getDate() - 7);
+
                 const { data: reservations, error } = await supabase
                     .from('reservations')
-                    .select('created_at');
-                
+                    .select('created_at')
+                    .gte('created_at', dateLimite.toISOString());
+
                 if (error) throw error;
-                
-                // Préparer les données pour le graphique des réservations par mois
-                const reservationsParMois = {};
+
+                // Préparer les données pour le graphique des réservations par jour
+                const reservationsParJour = {};
+
+                // Initialiser les 7 derniers jours avec 0
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    const dateStr = date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+                    reservationsParJour[dateStr] = 0;
+                }
+
+                // Compter les réservations par jour
                 reservations.forEach(res => {
                     const date = new Date(res.created_at);
-                    const moisAnnee = `${date.getMonth() + 1}/${date.getFullYear()}`;
-                    
-                    if (!reservationsParMois[moisAnnee]) {
-                        reservationsParMois[moisAnnee] = 0;
+                    const dateStr = date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+
+                    if (reservationsParJour[dateStr] !== undefined) {
+                        reservationsParJour[dateStr]++;
                     }
-                    reservationsParMois[moisAnnee]++;
                 });
-                
-                const labels = Object.keys(reservationsParMois);
-                const data = Object.values(reservationsParMois);
-                
-                // Créer le graphique des réservations par mois
+
+                // Formater les dates pour l'affichage (JJ/MM)
+                const labels = Object.keys(reservationsParJour).map(dateStr => {
+                    const date = new Date(dateStr);
+                    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                });
+
+                const data = Object.values(reservationsParJour);
+
+                // Créer le graphique des réservations par jour
                 const reservationsCtx = document.getElementById('reservationsChart').getContext('2d');
                 if (reservationsChart) reservationsChart.destroy();
-                
+
                 reservationsChart = new Chart(reservationsCtx, {
-                    type: 'line',
+                    type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [{
                             label: 'Réservations',
                             data: data,
-                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.7)',
                             borderColor: 'rgba(52, 152, 219, 1)',
-                            borderWidth: 2,
-                            tension: 0.3,
-                            fill: true
+                            borderWidth: 1,
+                            borderRadius: 4,
                         }]
                     },
                     options: {
@@ -568,6 +634,13 @@
                         plugins: {
                             legend: {
                                 display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return `Réservations: ${context.parsed.y}`;
+                                    }
+                                }
                             }
                         },
                         scales: {
@@ -575,23 +648,33 @@
                                 beginAtZero: true,
                                 ticks: {
                                     stepSize: 1
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Nombre de réservations'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Jours'
                                 }
                             }
                         }
                     }
                 });
-                
+
                 // Récupérer les statuts des réservations
                 const { data: reservationsStatut, error: statutError } = await supabase
                     .from('reservations')
                     .select('valide_passager, valide_conducteur');
-                
+
                 if (statutError) throw statutError;
-                
+
                 let enAttente = 0;
                 let validees = 0;
                 let refusees = 0;
-                
+
                 reservationsStatut.forEach(res => {
                     if (res.valide_conducteur) {
                         validees++;
@@ -601,11 +684,11 @@
                         refusees++;
                     }
                 });
-                
+
                 // Créer le graphique des statuts
                 const statusCtx = document.getElementById('statusChart').getContext('2d');
                 if (statusChart) statusChart.destroy();
-                
+
                 statusChart = new Chart(statusCtx, {
                     type: 'doughnut',
                     data: {
@@ -631,11 +714,22 @@
                         plugins: {
                             legend: {
                                 position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
                             }
                         }
                     }
                 });
-                
+
             } catch (error) {
                 console.error('Erreur lors du chargement des graphiques:', error);
             }
@@ -648,16 +742,16 @@
                     .from('utilisateurs')
                     .select('*')
                     .order('nom');
-                
+
                 if (error) throw error;
-                
+
                 // Récupérer les réservations pour compter le nombre de réservations par utilisateur
                 const { data: reservations, error: resError } = await supabase
                     .from('reservations')
                     .select('emailC, emailp');
-                
+
                 if (resError) throw resError;
-                
+
                 // Compter les réservations par utilisateur
                 const reservationsParUtilisateur = {};
                 reservations.forEach(res => {
@@ -666,7 +760,7 @@
                         reservationsParUtilisateur[res.emailC] = { conducteur: 0, passager: 0 };
                     }
                     reservationsParUtilisateur[res.emailC].conducteur++;
-                    
+
                     // Compter comme passager
                     if (res.emailp && res.emailp.length > 0) {
                         res.emailp.forEach(email => {
@@ -677,27 +771,46 @@
                         });
                     }
                 });
-                
+
                 // Remplir les tables
                 const allUsersTable = document.getElementById('all-users-table');
                 const conducteursTable = document.getElementById('conducteurs-table');
                 const passagersTable = document.getElementById('passagers-table');
-                
+
                 allUsersTable.innerHTML = '';
                 conducteursTable.innerHTML = '';
                 passagersTable.innerHTML = '';
-                
+
                 utilisateurs.forEach(user => {
                     const userReservations = reservationsParUtilisateur[user.email] || { conducteur: 0, passager: 0 };
                     const role = userReservations.conducteur > 0 ? 'Conducteur' : 'Passager';
                     const statut = user.online ? 'En ligne' : 'Hors ligne';
-                    
+
                     // Ligne pour tous les utilisateurs
                     const allUsersRow = document.createElement('tr');
                     allUsersRow.innerHTML = `
+                    <td>${user.prenom} ${user.nom}</td>
+                    <td>${user.email}</td>
+                    <td><span class="badge ${role === 'Conducteur' ? 'badge-info' : 'badge-success'}">${role}</span></td>
+                    <td><span class="badge ${user.online ? 'badge-success' : 'badge-warning'}">${statut}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="afficherDetailsUtilisateur('${user.id}')">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="supprimerUtilisateur('${user.id}', '${user.prenom} ${user.nom}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                    allUsersTable.appendChild(allUsersRow);
+
+                    // Ligne pour conducteurs si applicable
+                    if (userReservations.conducteur > 0) {
+                        const conducteursRow = document.createElement('tr');
+                        conducteursRow.innerHTML = `
                         <td>${user.prenom} ${user.nom}</td>
                         <td>${user.email}</td>
-                        <td><span class="badge ${role === 'Conducteur' ? 'badge-info' : 'badge-success'}">${role}</span></td>
+                        <td>${userReservations.conducteur} trajet(s)</td>
                         <td><span class="badge ${user.online ? 'badge-success' : 'badge-warning'}">${statut}</span></td>
                         <td>
                             <button class="btn btn-sm btn-outline-primary me-1" onclick="afficherDetailsUtilisateur('${user.id}')">
@@ -708,164 +821,145 @@
                             </button>
                         </td>
                     `;
-                    allUsersTable.appendChild(allUsersRow);
-                    
-                    // Ligne pour conducteurs si applicable
-                    if (userReservations.conducteur > 0) {
-                        const conducteursRow = document.createElement('tr');
-                        conducteursRow.innerHTML = `
-                            <td>${user.prenom} ${user.nom}</td>
-                            <td>${user.email}</td>
-                            <td>${userReservations.conducteur} trajet(s)</td>
-                            <td><span class="badge ${user.online ? 'badge-success' : 'badge-warning'}">${statut}</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary me-1" onclick="afficherDetailsUtilisateur('${user.id}')">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="supprimerUtilisateur('${user.id}', '${user.prenom} ${user.nom}')">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        `;
                         conducteursTable.appendChild(conducteursRow);
                     }
-                    
+
                     // Ligne pour passagers si applicable
                     if (userReservations.passager > 0) {
                         const passagersRow = document.createElement('tr');
                         passagersRow.innerHTML = `
-                            <td>${user.prenom} ${user.nom}</td>
-                            <td>${user.email}</td>
-                            <td>${userReservations.passager} réservation(s)</td>
-                            <td><span class="badge ${user.online ? 'badge-success' : 'badge-warning'}">${statut}</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary me-1" onclick="afficherDetailsUtilisateur('${user.id}')">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="supprimerUtilisateur('${user.id}', '${user.prenom} ${user.nom}')">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        `;
+                        <td>${user.prenom} ${user.nom}</td>
+                        <td>${user.email}</td>
+                        <td>${userReservations.passager} réservation(s)</td>
+                        <td><span class="badge ${user.online ? 'badge-success' : 'badge-warning'}">${statut}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="afficherDetailsUtilisateur('${user.id}')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="supprimerUtilisateur('${user.id}', '${user.prenom} ${user.nom}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    `;
                         passagersTable.appendChild(passagersRow);
                     }
                 });
-                
+
             } catch (error) {
                 console.error('Erreur lors du chargement des utilisateurs:', error);
             }
         }
 
         // Afficher les détails d'un utilisateur
-        window.afficherDetailsUtilisateur = async function(userId) {
+        window.afficherDetailsUtilisateur = async function (userId) {
             try {
                 const { data: user, error } = await supabase
                     .from('utilisateurs')
                     .select('*')
                     .eq('id', userId)
                     .single();
-                
+
                 if (error) throw error;
-                
+
                 // Récupérer les réservations de l'utilisateur
                 const { data: reservationsConducteur, error: resConducteurError } = await supabase
                     .from('reservations')
                     .select('*')
                     .eq('emailC', user.email);
-                
+
                 if (resConducteurError) throw resConducteurError;
-                
+
                 const { data: reservationsPassager, error: resPassagerError } = await supabase
                     .from('reservations')
                     .select('*');
-                
+
                 if (resPassagerError) throw resPassagerError;
-                
+
                 // Filtrer les réservations où l'utilisateur est passager
-                const reservationsCommePassager = reservationsPassager.filter(res => 
+                const reservationsCommePassager = reservationsPassager.filter(res =>
                     res.emailp && res.emailp.includes(user.email)
                 );
-                
+
                 // Préparer le contenu du modal
                 const modalBody = document.getElementById('userModalBody');
                 modalBody.innerHTML = `
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Informations Personnelles</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td><strong>Nom:</strong></td>
-                                    <td>${user.nom}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Prénom:</strong></td>
-                                    <td>${user.prenom}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Email:</strong></td>
-                                    <td>${user.email}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Statut:</strong></td>
-                                    <td><span class="badge ${user.online ? 'badge-success' : 'badge-warning'}">${user.online ? 'En ligne' : 'Hors ligne'}</span></td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Statistiques</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td><strong>Trajets comme conducteur:</strong></td>
-                                    <td>${reservationsConducteur.length}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Réservations comme passager:</strong></td>
-                                    <td>${reservationsCommePassager.length}</td>
-                                </tr>
-                            </table>
-                        </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Informations Personnelles</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Nom:</strong></td>
+                                <td>${user.nom}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Prénom:</strong></td>
+                                <td>${user.prenom}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email:</strong></td>
+                                <td>${user.email}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Statut:</strong></td>
+                                <td><span class="badge ${user.online ? 'badge-success' : 'badge-warning'}">${user.online ? 'En ligne' : 'Hors ligne'}</span></td>
+                            </tr>
+                        </table>
                     </div>
-                    
-                    ${user.bio_conducteur || user.bio_passager ? `
-                    <div class="mt-3">
-                        <h6>Biographie</h6>
-                        <p>${user.bio_conducteur || user.bio_passager || 'Aucune biographie disponible'}</p>
+                    <div class="col-md-6">
+                        <h6>Statistiques</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Trajets comme conducteur:</strong></td>
+                                <td>${reservationsConducteur.length}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Réservations comme passager:</strong></td>
+                                <td>${reservationsCommePassager.length}</td>
+                            </tr>
+                        </table>
                     </div>
-                    ` : ''}
-                    
-                    ${reservationsConducteur.length > 0 ? `
-                    <div class="mt-3">
-                        <h6>Derniers trajets comme conducteur</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Départ</th>
-                                        <th>Arrivée</th>
-                                        <th>Date</th>
-                                        <th>Prix</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${reservationsConducteur.slice(0, 5).map(res => `
-                                        <tr>
-                                            <td>${res.debut}</td>
-                                            <td>${res.fin}</td>
-                                            <td>${new Date(res.created_at).toLocaleDateString()}</td>
-                                            <td>${res.prix_reservation} MAD</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    ` : ''}
-                `;
+                </div>
                 
+                ${user.bio_conducteur || user.bio_passager ? `
+                <div class="mt-3">
+                    <h6>Biographie</h6>
+                    <p>${user.bio_conducteur || user.bio_passager || 'Aucune biographie disponible'}</p>
+                </div>
+                ` : ''}
+                
+                ${reservationsConducteur.length > 0 ? `
+                <div class="mt-3">
+                    <h6>Derniers trajets comme conducteur</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Départ</th>
+                                    <th>Arrivée</th>
+                                    <th>Date</th>
+                                    <th>Prix</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${reservationsConducteur.slice(0, 5).map(res => `
+                                    <tr>
+                                        <td>${res.debut}</td>
+                                        <td>${res.fin}</td>
+                                        <td>${new Date(res.created_at).toLocaleDateString()}</td>
+                                        <td>${res.prix_reservation} MAD</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
                 // Afficher le modal
                 const userModal = new bootstrap.Modal(document.getElementById('userModal'));
                 userModal.show();
-                
+
             } catch (error) {
                 console.error('Erreur lors du chargement des détails utilisateur:', error);
                 alert('Erreur lors du chargement des détails utilisateur');
@@ -873,23 +967,23 @@
         }
 
         // Supprimer un utilisateur
-        window.supprimerUtilisateur = async function(userId, nomComplet) {
+        window.supprimerUtilisateur = async function (userId, nomComplet) {
             if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur "${nomComplet}" ? Cette action est irréversible.`)) {
                 return;
             }
-            
+
             try {
                 const { error } = await supabase
                     .from('utilisateurs')
                     .delete()
                     .eq('id', userId);
-                
+
                 if (error) throw error;
-                
+
                 alert('Utilisateur supprimé avec succès !');
                 chargerUtilisateurs();
                 chargerStatistiques();
-                
+
             } catch (error) {
                 console.error('Erreur lors de la suppression:', error);
                 alert('Erreur lors de la suppression de l\'utilisateur');
@@ -903,15 +997,15 @@
                     .from('reservations')
                     .select('*')
                     .order('created_at', { ascending: false });
-                
+
                 if (error) throw error;
-                
+
                 const reservationsTable = document.getElementById('reservations-table');
                 reservationsTable.innerHTML = '';
-                
+
                 reservations.forEach(res => {
                     let statut, badgeClass;
-                    
+
                     if (res.valide_conducteur) {
                         statut = 'Validée';
                         badgeClass = 'badge-success';
@@ -922,47 +1016,47 @@
                         statut = 'Refusée';
                         badgeClass = 'badge-danger';
                     }
-                    
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${res.id}</td>
-                        <td>${res.emailC}</td>
-                        <td>${res.debut} → ${res.fin}</td>
-                        <td>${new Date(res.created_at).toLocaleDateString()}</td>
-                        <td>${res.prix_reservation} MAD</td>
-                        <td><span class="badge ${badgeClass}">${statut}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-danger" onclick="supprimerReservation(${res.id})">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    `;
+                    <td>${res.id}</td>
+                    <td>${res.emailC}</td>
+                    <td>${res.debut} → ${res.fin}</td>
+                    <td>${new Date(res.created_at).toLocaleDateString()}</td>
+                    <td>${res.prix_reservation} MAD</td>
+                    <td><span class="badge ${badgeClass}">${statut}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="supprimerReservation(${res.id})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
                     reservationsTable.appendChild(row);
                 });
-                
+
             } catch (error) {
                 console.error('Erreur lors du chargement des réservations:', error);
             }
         }
 
         // Supprimer une réservation
-        window.supprimerReservation = async function(reservationId) {
+        window.supprimerReservation = async function (reservationId) {
             if (!confirm('Êtes-vous sûr de vouloir supprimer cette réservation ? Cette action est irréversible.')) {
                 return;
             }
-            
+
             try {
                 const { error } = await supabase
                     .from('reservations')
                     .delete()
                     .eq('id', reservationId);
-                
+
                 if (error) throw error;
-                
+
                 alert('Réservation supprimée avec succès !');
                 chargerReservations();
                 chargerStatistiques();
-                
+
             } catch (error) {
                 console.error('Erreur lors de la suppression:', error);
                 alert('Erreur lors de la suppression de la réservation');
@@ -974,7 +1068,7 @@
             chargerStatistiques();
             chargerUtilisateurs();
             chargerReservations();
-            
+
             // Recharger les données toutes les 30 secondes
             setInterval(() => {
                 chargerStatistiques();
@@ -984,4 +1078,5 @@
         });
     </script>
 </body>
+
 </html>

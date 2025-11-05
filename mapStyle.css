@@ -496,3 +496,145 @@ input:checked+.navbar-slider:before {
     animation: navbarSlideDown 0.6s ease;
 }
 
+/* === Responsive additionnel === */
+/* Tablettes larges */
+@media (max-width: 1024px) {
+    .form-section {
+        flex: 0 0 360px;
+        padding: 32px 24px;
+    }
+
+    .container {
+        max-width: 1100px;
+        height: 85vh;
+    }
+
+    .logo h1 {
+        font-size: 24px;
+    }
+}
+
+/* Petites tablettes / grands téléphones */
+@media (max-width: 900px) {
+    .form-section {
+        flex: 0 0 320px;
+        padding: 28px 20px;
+    }
+
+    .container {
+        height: 80vh;
+    }
+}
+
+/* Mobile: empilement vertical, map visible sous le formulaire */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+        max-height: calc(100vh - 70px); /* laisse de la place pour la navbar */
+        overflow: hidden;
+        border-radius: 12px;
+    }
+
+    .form-section {
+        flex: none;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e9ecef;
+        padding: 20px;
+    }
+
+    .map-section {
+        flex: none;
+        width: 100%;
+        height: 60vh;
+    }
+
+    #map {
+        height: 100%;
+    }
+
+    .buttons-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .navbar {
+        padding: 0.8rem 3%;
+    }
+
+    .navbar-nav {
+        top: 60px;
+    }
+
+    .route-info {
+        position: relative;
+        margin: 16px 0;
+        box-shadow: none;
+    }
+
+    .loading {
+        padding: 12px;
+    }
+}
+
+/* Très petits écrans */
+@media (max-width: 480px) {
+    body {
+        padding: 12px;
+    }
+
+    .form-section {
+        padding: 16px;
+    }
+
+    .map-section {
+        height: 50vh;
+    }
+
+    .logo h1 {
+        font-size: 20px;
+    }
+
+    .logo p,
+    .form-group label,
+    .form-input,
+    select {
+        font-size: 13px;
+    }
+
+    .form-input,
+    select,
+    .info-value {
+        padding: 8px 10px;
+        border-radius: 10px;
+    }
+
+    .btn {
+        padding: 10px 12px;
+        font-size: 13px;
+        min-height: 44px;
+    }
+}
+
+/* Accessibilité tactile: boutons plus grands quand espace disponible */
+@media (pointer: coarse) {
+    .btn {
+        padding: 14px 16px;
+        min-height: 48px;
+    }
+
+    .navbar-toggle span {
+        height: 4px;
+    }
+}
+
+/* Empêche le débordement horizontal sur petits écrans */
+@media (max-width: 768px) {
+    html, body, .container {
+        overflow-x: hidden;
+    }
+}
